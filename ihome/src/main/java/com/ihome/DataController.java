@@ -1,6 +1,8 @@
 package com.ihome;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +29,12 @@ public class DataController {
 		c.setSerial(serial);
 		c.setTemp(temp);
 		return c;
+	}
+	
+	@RequestMapping(path="/currentput", method=RequestMethod.PUT)
+	public String putCurrentStatus(@RequestBody CurrentStatus cs) {
+		System.out.println("GOT Status:" + cs);
+		return "index";
 	}
 	
 }

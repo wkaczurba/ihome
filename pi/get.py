@@ -1,14 +1,11 @@
 import urllib2
 import json
+import server
 
-SERVER_BOOT = "http://127.0.0.1:8080"
-SERVER_STANDALONE = "http://127.0.0.1:8080/ihome" 
- 
- 
-server = SERVER_BOOT
+print "This uses urllib2 instead of requests"
 
 # SpringBoot:
-response = urllib2.urlopen(server + "/current?name=Zoze&connected=true&heatingOn=false&serial=1&temp=2.3").read()
+response = urllib2.urlopen(server.getName() + "/current?name=Zoze&connected=true&heatingOn=false&serial=1&temp=2.3").read()
 
 
 object = json.loads(response)

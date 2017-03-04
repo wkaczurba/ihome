@@ -76,6 +76,16 @@ public class CurrentStatus {
 	public void setTemp(double temp) {
 		this.temp = temp;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CurrentStatus [name=" + name + ", connected=" + connected + ", heatingOn=" + heatingOn + ", serial="
+				+ serial + ", temp=" + temp + "]";
+	}
+	
 	
 	
 }
