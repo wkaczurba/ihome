@@ -1,5 +1,6 @@
 package com.ihome.node;
 
+@Deprecated
 public class CurrentStatus {
 	private String name;
 	private Boolean connected;

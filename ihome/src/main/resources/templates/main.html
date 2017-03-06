@@ -20,9 +20,37 @@ Things to do:<br/>
 
 <h3>automatic mode</h3>
 
+<p>
+</p>
 
 <h3>manual</h3>
-accordingly to the request  
+<p>
+accordingly to the request
+<pre>
+
+mode = manual, automatic, off
+
+manual = [
+  zones = [true, false]
+] 
+  
+----: ()Stuff)
+
+Heating Settings:
+<span th:text="${heatingSettings}"></span>
+
+<a th:href="@{/setmanual/0/0/0}"> Zone 0 = off</a><br />
+<a th:href="@{/setmanual/0/0/1}"> Zone 0 = on</a><br />
+<a th:href="@{/setmanual/0/1/0}"> Zone 1 = off</a><br />
+<a th:href="@{/setmanual/0/1/1}"> Zone 1 = on</a><br />
+<a th:href="@{/setmanual/0/2/0}"> Zone 2 = off</a><br />
+<a th:href="@{/setmanual/0/2/1}"> Zone 2 = on</a><br />
+
+
+
+</pre>
+  
+</p>
 
 
 </body>
