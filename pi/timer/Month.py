@@ -4,6 +4,8 @@ Created on Mar 6, 2017
 @author: WKaczurb
 '''
 
+from datetime import date
+
 class Month(object):
     '''
     classdocs
@@ -30,9 +32,17 @@ class Month(object):
     # n=> 1 = JANUARY, 12 = DECEMBER
     @staticmethod
     def asString(n):
+        if (n < 1 or n > 12):
+            raise ValueError("n must be between 1 and 12; n==" + str(n))            
         return Month.Months[n - 1]
 
     @staticmethod
     def asInteger( s):
         return Month.Months.index(s)+1
         
+    @staticmethod
+    def fromDateToString(date0):
+        assert(isinstance(date0, date))
+        return Month.asString(date0.month)
+    
+    

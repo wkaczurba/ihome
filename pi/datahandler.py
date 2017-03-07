@@ -1,6 +1,6 @@
-import dates
+import timer
 #from datetime import date
-#from dates.LocalDate import LocalDate
+#from timer.LocalDate import LocalDate
 import datetime
 from cookielib import DAYS
 #import datetime.timedelta

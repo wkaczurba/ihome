@@ -13,9 +13,8 @@ class TestDates(unittest.TestCase):
         self.assertNotEquals(True, False, "False True is not true.")
         print "test2 done"
         
-    def testInvalid(self):
-        self.assertTrue(False, "induced error")
-        
+    #def testInvalid(self):
+        #self.assertTrue(False, "induced error")
 
     def testDates(self):
         self.assertEquals(True, True, "True is true.")
