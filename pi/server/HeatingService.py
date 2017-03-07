@@ -5,7 +5,7 @@ import logging
 import pprint
 #import time
 
-class Heating:
+class HeatingService:
     
     def __init__(self):
         logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
@@ -32,7 +32,7 @@ class Heating:
         
         # Apply:
         self.settings = newSettings
-        pass
+        return self.settings
     
     # statuses, e.g,:
     def putStatus(self, statuses = []): 
@@ -74,7 +74,7 @@ class Heating:
         # Send back the heating statuses
         pass
     
-    def loopbackTest(self, count=1000):
+    def loopbackTest(self, count=1000, verbose=False):
         i = count
         while (i > 0):
             # Getting:
@@ -82,25 +82,24 @@ class Heating:
             status = r.status_code
             if (status != 200):
                 self.logger.error("/test/heatingSeetingloopback did not work, http.status=%s" % (status))
-                return
+                return False
             retrievedSettings = r.json()
     
-            print pprint.pformat(retrievedSettings, 2)
+            if (verbose):
+                print pprint.pformat(retrievedSettings, 2)
 
             # Putting
             r = requests.put(server.getName() + "/test/heatingSeetingloopback", json=retrievedSettings)
             status = r.status_code
             if (status != 200):
                 self.logger.error('/settingsFeedback/0 did not work, http.status=%s' % (status))
-                return
+                return False
             i-=1
         print "Passed" + str(count)
+        return True
 
 
-h = Heating()
 
-h.logger.setLevel(logging.INFO)
-h.loopbackTest()
 #h.logger.
 
 # 
