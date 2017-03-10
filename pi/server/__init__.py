@@ -1,5 +1,5 @@
 import requests
-import os
+import platform
 
 SERVER_BOOT = "http://127.0.0.1:8080"
 SERVER_STANDALONE = "http://127.0.0.1:8080/ihome" 
@@ -8,7 +8,7 @@ SERVER_STANDALONE = "http://127.0.0.1:8080/ihome"
 
 def getName():
 
-    if ("raspberrypi" in os.uname()):
+    if ("raspberrypi" in platform.uname()):
         possible = ["http://192.168.0.12:8080", "http://192.168.0.12:8080/ihome"]
     else:
         possible = ["http://192.168.0.100:8080", "http://192.168.0.100:8080/ihome"]
