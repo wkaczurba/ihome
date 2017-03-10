@@ -10,7 +10,7 @@ from datetime import datetime
 from datetime import time
 from datetime import date
 from datetime import timedelta
-from datahandler import dayMatches
+#from datahandler import dayMatches
 
 class TimerSettings(object):
     '''

@@ -13,13 +13,24 @@ class HeatingService:
         
         self.zones= []
         self.settings = []
+        self.settingsChangeObservers = []
         self.status = []
-        self.getSettings()
+        self.getSettingsREST()
         self.logger.warning("setRelays function missing.")
         self.logger.warning("Function to calculate what GPIO to set missing") # TODO: add function
         
+    def addSettingsChangeObserver(self, func):
+        """Adds lambda functions that will be called once settings are changed"""
+        self.settingsChangeObservers.append(func)
         
+    def notifySettingsChangeObservers(self):
+        for observer in self.settingsChangeObservers:
+            observer()
+            
     def getSettings(self):
+        return self.settings
+        
+    def getSettingsREST(self):
         r = requests.get(server.getName() + "/settings/0")
         status = r.status_code
         if (status != 200):
@@ -27,15 +38,18 @@ class HeatingService:
             
         newSettings = r.json()
         if (self.settings != newSettings):
+            self.settings = newSettings
             self.logger.info( "Settings changed: " + pprint.pformat(newSettings, 2) )
             print "Settings changed" + pprint.pformat(newSettings, 2)
+            self.notifySettingsChangeObservers()
         
         # Apply:
-        self.settings = newSettings
+        #self.settings = newSettings
+        
         return self.settings
     
     # statuses, e.g,:
-    def putStatus(self, statuses = []): 
+    def putStatusREST(self, statuses = []): 
         data = {u'heatingOn': statuses}
         r = requests.put(server.getName() + "/status/0", json=data)
         # TODO: The code should be different.
@@ -45,28 +59,28 @@ class HeatingService:
         else:
             self.logger.debug("status put ok")
             
-    def putSettings(self, settings):
+    def putSettingsREST(self, settings):
         self.logger.debug("putting:\n" + pprint.pformat(settings, 2))
         r = requests.put(server.getName() + "/settingsFeedback/0", json=settings)
         status = r.status_code
         if (status != 200):
             self.logger.error('/settingsFeedback/0 did not work, http.status=%s' % (status))
         else:
-            self.logger.debug("putSettings -> fbSettings put ok")
+            self.logger.debug("putSettingsREST -> fbSettings put ok")
             
     def setRelays(self, statuses=[]):
         # TODO: Missing function
         pass
         
     def update(self):
-        self.getSettings()
+        self.getSettingsREST()
         
         # TODO: Add function that calculates what to turn on/off
                 
         self.setRelays()
         
-        self.putStatus(self.status)
-        self.putSettings(self.settings)
+        self.putStatusREST(self.status)
+        self.putSettingsREST(self.settings)
         
         # Get settings from server
         # Make decision: what to heat, what to not
@@ -113,10 +127,10 @@ class HeatingService:
 
 # x = 0;
 # while (x < 1):
-#     h.getSettings()
+#     h.getSettingsREST()
 #     #print h.settings
 #     print "applying settings"
-#     h.putStatus([True, False, False])
-#     h.putSettings(h.settings)
+#     h.putStatusREST([True, False, False])
+#     h.putSettingsREST(h.settings)
 #     x+=1
 
