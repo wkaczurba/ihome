@@ -4,8 +4,8 @@ Created on Mar 7, 2017
 @author: WKaczurb
 '''
 import unittest
-from timer.TimerSetting import TimerSettings
-from datahandler import startingTime
+from timer.TimerSetting import TimerSetting
+#from datahandler import startingTime
 import datetime
 
 class TestTimerSetting(unittest.TestCase):
@@ -19,7 +19,7 @@ class TestTimerSetting(unittest.TestCase):
         startingTime = [9,20]
         endTime = [13,10]
         
-        ts = TimerSettings(days, months, startingTime, endTime)
+        ts = TimerSetting(days, months, startingTime, endTime)
         dt0 = datetime.datetime(2017, 3, 17, 9, 19) # Monday March
         dt1 = datetime.datetime(2017, 3, 17, 10, 34) # Monday March
         dt2 = datetime.datetime(2017, 3, 17, 13, 34) # Monday March
@@ -53,7 +53,7 @@ class TestTimerSetting(unittest.TestCase):
         startingTime = [19,20]
         endTime = [5,10]
         
-        ts = TimerSettings(days, months, startingTime, endTime)        
+        ts = TimerSetting(days, months, startingTime, endTime)        
         dtm4 = datetime.datetime(2017, 3, 17, 5, 9) # Monday March
         dtm3 = datetime.datetime(2017, 3, 17, 5, 10) # Monday March
         dtm2 = datetime.datetime(2017, 3, 17, 5, 11) # Monday March
@@ -89,7 +89,7 @@ class TestTimerSetting(unittest.TestCase):
         startingTime = [19,20]
         endTime = [5,10]
         
-        ts = TimerSettings(days, months, startingTime, endTime)        
+        ts = TimerSetting(days, months, startingTime, endTime)        
         dt0 = datetime.datetime(2016, 12, 31, 19, 19) # Saturday Deceber
         dt1 = datetime.datetime(2016, 12, 31, 19, 20) # Saturday Deceber
         dt2 = datetime.datetime(2016, 12, 31, 23, 59) # Saturday Deceber

@@ -12,7 +12,7 @@ from datetime import date
 from datetime import timedelta
 #from datahandler import dayMatches
 
-class TimerSettings(object):
+class TimerSetting(object):
     '''
     classdocs
     '''
@@ -47,7 +47,7 @@ class TimerSettings(object):
         
         #x = { u'days': [ u'MONDAY', u'SATURDAY', u'FRIDAY', u'SUNDAY'], u'endTime': [5, 34], u'months': [u'FEBRUARY', u'MARCH'], u'startingTime': [21, 16]} 
         
-    def dateTimeMatches(self, datetime0):
+    def dateTimeMatches(self, datetime0, verbose=False):
         if (not isinstance(datetime0, datetime)):
             raise TypeError("dateTime0 must be a datetime.datetime object")
         
@@ -60,19 +60,20 @@ class TimerSettings(object):
         #print "Day: " + str(day) + " ("+ str(datetime0.weekday()) +")"
         #print "Time: " + str(datetime0.time())
         
-        if (overnight):
-            print "overnight: " + str(startingTime) + "["+ str(self.days) +"] to " + str(endTime) + " (following day)"
-             
-        else:
-            print "daytime: " + str(startingTime) + " to " + str(endTime) + " same day on days: " + str(self.days) + " in months: " + str(self.months)
+        if (verbose):
+            if (overnight):
+                print "overnight: " + str(startingTime) + "["+ str(self.days) +"] to " + str(endTime) + " (following day)"
+            else:
+                print "daytime: " + str(startingTime) + " to " + str(endTime) + " same day on days: " + str(self.days) + " in months: " + str(self.months)
 
         # Within hours:
         if (not overnight):
             weekdayMatches = DayOfWeek.fromDateToString(day) in self.days
             monthMatches = Month.fromDateToString(day) in self.months
-            print "weekdayMatches: " + str(weekdayMatches)
-            print "monthMatches: " + str(monthMatches)
-            print "time: " + str(datetime0.time())
+            if (verbose):
+                print "weekdayMatches: " + str(weekdayMatches)
+                print "monthMatches: " + str(monthMatches)
+                print "time: " + str(datetime0.time())
                               
             # It has to be the same day:
             if ((datetime0.time() >= startingTime and 
@@ -82,7 +83,8 @@ class TimerSettings(object):
                 return True
             return False
         else: # overnight
-            print overnight
+            if (verbose):
+                print overnight
                          
             # Day it should start:
             timeMatcher1 = datetime0.time() >= startingTime 
