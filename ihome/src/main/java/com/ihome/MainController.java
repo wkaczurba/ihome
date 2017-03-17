@@ -1,11 +1,17 @@
 package com.ihome;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ihome.data.HeatingRepository;
@@ -14,7 +20,11 @@ import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
 import com.ihome.node.ZoneTimerEntry;
 
+// SessionAttributes read here: 
+// http://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/spring-model-attribute-with-session/
+
 @Controller
+@SessionAttributes("heatingSettings")
 public class MainController {
 	
 	HeatingRepository repo;
@@ -24,7 +34,6 @@ public class MainController {
 	public MainController(HeatingRepository repo) {
 		this.repo = repo;
 	}
-	
 	
 //	@ExceptionHandler()
 //	@ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -43,26 +52,50 @@ public class MainController {
 	}
 	
 	// TODO: Only temporary function;
-	@RequestMapping(path="/addzonetimerentry", method=RequestMethod.GET)
-	public ModelAndView addZoneSettingsGet() {
+	@RequestMapping(path="/addzonetimerentry/{device}/{zone}", method=RequestMethod.GET)
+	public ModelAndView addZoneSettingsGet(@PathVariable int device, @PathVariable int zone) {
 		System.out.println("GET");
-		//HeatingSettings heatingSettings = repo.getSettings(0);
+		
+		// TODO: Check if zone exists first.
 	
 		ModelAndView modelAndView = new ModelAndView("addzonetimerentry");
 		modelAndView.addObject("zoneTimerEntry", ZoneTimerEntry.createRandom());
+		modelAndView.addObject("heatingSettings", repo.getSettings(device));
+		modelAndView.addObject("zone", zone);
+		modelAndView.addObject("device", device);
 		return modelAndView;
 	}
 	
-	@RequestMapping(path="/addzonetimerentry", method=RequestMethod.POST)
-	public ModelAndView addZoneSettingsPost(ZoneTimerEntry z) {
+	@RequestMapping(path="/addzonetimerentry/{device}/{zone}", method=RequestMethod.POST)
+	public String addZoneSettingsPost(@ModelAttribute("heatingSettings") HeatingSettings heatingSettings, 
+			@PathVariable int device, 
+			@PathVariable int zone,
+			ZoneTimerEntry z) {
 		System.out.println("POST");
-		//HeatingSettings heatingSettings = repo.getSettings(0);
 	
-		ModelAndView modelAndView = new ModelAndView("addzonetimerentry");
-		modelAndView.addObject("zoneTimerEntry", z);
+		//ModelAndView modelAndView = new ModelAndView("addzonetimerentry");
 		
-		return modelAndView;
-	}	
+		if (!heatingSettings.equals(repo.getSettings(device))) {
+			throw new IllegalArgumentException("heatingSettings in session and in the DB are different!");
+		}
+		
+		// TODO: Saving properly.
+		List<ZoneSetting> zones = heatingSettings.getZones();
+		ZoneSetting zoneSetting = zones.get(zone); //.getAutomaticModeSettings();
+		//automaticModeSettings zoneSetting.getAutomaticModeSettings();
+		Set<ZoneTimerEntry> entries = zoneSetting.getAutomaticModeSettings();
+		Set<ZoneTimerEntry> newEntries = new HashSet<>(entries);
+		newEntries.add(z);
+		
+		zoneSetting.setAutomaticModeSettings(newEntries);
+		zones.set(zone, zoneSetting);
+		heatingSettings.setZones(zones);
+		repo.setSettings(device, heatingSettings);
+		
+		return "redirect:/";
+		
+		//return modelAndView;
+	}		
 	
 	
 	@RequestMapping("/setmanual/{device}/{zone}/{on}")
@@ -83,5 +116,7 @@ public class MainController {
 		modelAndView.addObject("heatingSettings", heatingSettings);
 		return modelAndView;
 	}
+	
+	
 	
 }

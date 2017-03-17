@@ -19,7 +19,7 @@ Values:
 <!--  <div th:text="${T(java.time.DayOfWeek).values()}"></div> -->
 
 
-<form th:action="@{/addzonetimerentry}" th:object="${zoneTimerEntry}" method="post">
+<form th:action="@{/addzonetimerentry/{device}/{zone}(device=${device},zone=${zone})}" th:object="${zoneTimerEntry}" method="post">
    <div class="errors" th:if="${#fields.hasErrors('*')}">
      <ul>
        <li th:each="err : ${#fields.errors('*')}" 
