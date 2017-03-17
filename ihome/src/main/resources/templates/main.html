@@ -5,9 +5,8 @@
 <title>Insert title here</title>
 </head>
 <body>
-
   <h1>Main page.</h1>
-  
+
 <p>
 Things to do:<br/>
 - There should be three modes:
@@ -17,6 +16,9 @@ Things to do:<br/>
  <li>off</li>
 </ul>
 </p>
+
+<a th:href="@{/addzonetimerentry}">addZoneSettings</a>
+
 
 <h3>automatic mode</h3>
 
@@ -38,6 +40,30 @@ manual = [
 
 Heating Settings:
 <span th:text="${heatingSettings}"></span>
+
+<div th:text="${heatingSettings.zones.size()}"></div>
+
+<div th:text="#{numbers.sequence(0, 3, 1)}"></div>
+
+<table border="1">
+  <tr>
+    <td>Zone Id</td>
+    <td>Mode</td>
+    <td>Zone</td>
+    <td>Iterstat</td>
+  </tr>
+  <tr th:each="zone,iterstat : ${heatingSettings.zones}">
+    <td th:text="${iterstat.index}"></td>
+    <td th:text="${zone.mode}"></td>
+    <td th:text="${zone}" ></td>
+    <td th:text="${iterstat}" ></td>
+  </tr>
+</table>
+
+
+<br/>Sequences:
+
+
 
 <a th:href="@{/setmanual/0/0/0}"> Zone 0 = off</a><br />
 <a th:href="@{/setmanual/0/0/1}"> Zone 0 = on</a><br />

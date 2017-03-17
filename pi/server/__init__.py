@@ -11,7 +11,8 @@ def getName():
     if ("raspberrypi" in platform.uname()):
         possible = ["http://192.168.0.12:8080", "http://192.168.0.12:8080/ihome"]
     else:
-        possible = ["http://192.168.0.100:8080", "http://192.168.0.100:8080/ihome"]
+        #possible = ["http://192.168.0.100:8080", "http://192.168.0.100:8080/ihome", "http://127.0.0.1:8080", "http://127.0.0.1:8080/ihome"]
+        possible = ["http://127.0.0.1:8080", "http://127.0.0.1:8080/ihome"]
 
     statuses = {}
     

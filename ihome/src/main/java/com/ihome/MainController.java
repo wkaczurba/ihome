@@ -9,6 +9,8 @@ import org.springframework.web.servlet.ModelAndView;
 import com.ihome.data.HeatingRepository;
 import com.ihome.node.HeatingSettings;
 import com.ihome.node.ZoneMode;
+import com.ihome.node.ZoneSetting;
+import com.ihome.node.ZoneTimerEntry;
 
 @Controller
 public class MainController {
@@ -28,6 +30,21 @@ public class MainController {
 		modelAndView.addObject("heatingSettings", heatingSettings);
 		return modelAndView;
 	}
+	
+	// TODO: Only temporary function;
+	@RequestMapping("/addzonetimerentry")
+	public ModelAndView addZoneSettings() {
+		HeatingSettings heatingSettings = repo.getSettings(0);
+	
+		ModelAndView modelAndView = new ModelAndView("addzonetimeentry");
+		//modelAndView.addObject("heatingSettings", heatingSettings);
+		
+//		modelAndView.addObject("zoneSetting", ZoneSetting.createRandom());
+		
+		modelAndView.addObject("zoneTimerEntry", ZoneTimerEntry.createRandom());
+		
+		return modelAndView;
+	}	
 	
 	@RequestMapping("/setmanual/{device}/{zone}/{on}")
 	public ModelAndView manualSetOn(@PathVariable int device, @PathVariable int zone, @PathVariable int on) {
