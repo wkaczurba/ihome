@@ -13,9 +13,13 @@ import java.util.Set;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 public class ZoneTimerEntry implements Serializable {
+	private long id;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime startingTime;
+	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime endTime;
 	private Set<DayOfWeek> days = new HashSet<>();
 	private Set<Month> months = new HashSet<>();

@@ -14,6 +14,49 @@
 <br/>
 <br/>
 
+Values:
+
+<!--  <div th:text="${T(java.time.DayOfWeek).values()}"></div> -->
+
+
+<form th:action="@{/addzonetimerentry}" th:object="${zoneTimerEntry}" method="post">
+   <div class="errors" th:if="${#fields.hasErrors('*')}">
+     <ul>
+       <li th:each="err : ${#fields.errors('*')}" 
+           th:text="${err}">Input is incorrect</li>
+     </ul>
+   </div>
+      
+  <label th:class="${#fields.hasErrors('startingTime')}? 'error'">Starting time:</label><br/>
+  <input type="text" id="startingTime" name="startingTime" th:value="*{startingTime}" /><br/>
+  
+  <label th:class="${#fields.hasErrors('endTime')}? 'error'">End time:</label><br/>
+  <input type="text" id="endTime" name="endTime" th:value="*{endTime}" /><br/>
+  
+  <div>
+  <label th:class="${#fields.hasErrors('days')}? 'error'">Days:</label>
+    <ul> 
+        <li th:each="day : ${T(java.time.DayOfWeek).values()}">
+        <input type="checkbox" th:field="*{days}" th:value="${day}" />
+          <!-- <label th:for="${#ids.prev('days')}"  th:text="#{${'zoneTimerEntry.days.' + day}}">Days</label> -->
+          <label th:for="${#ids.prev('days')}"  th:text="${day}">Days</label>
+        </li>
+    </ul>
+  </div>
+
+  <div>
+  <label th:class="${#fields.hasErrors('months')}? 'error'">Months:</label>
+    <ul> 
+        <li th:each="month : ${T(java.time.Month).values()}">
+        <input type="checkbox" th:field="*{months}" th:value="${month}" />
+          <!-- <label th:for="${#ids.prev('days')}"  th:text="#{${'zoneTimerEntry.days.' + day}}">Days</label> -->
+          <label th:for="${#ids.prev('months')}"  th:text="${month}">Months</label>
+        </li>
+    </ul>
+  </div>
+  
+  <input type="submit" value="Send" />
+</form>
 
 </body>
 </html>
