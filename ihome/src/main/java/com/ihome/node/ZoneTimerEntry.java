@@ -132,6 +132,22 @@ public class ZoneTimerEntry implements Serializable {
 	public boolean equals(Object that) {
 		return EqualsBuilder.reflectionEquals(this, that);
 	}
+
+
+	/**
+	 * @return the id
+	 */
+	public long getId() {
+		return id;
+	}
+
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(long id) {
+		this.id = id;
+	}
 	
 
 //	public static void main(String[] args) {

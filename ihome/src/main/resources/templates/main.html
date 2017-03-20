@@ -17,11 +17,6 @@ Things to do:<br/>
 </ul>
 </p>
 
-<a th:href="@{/addzonetimerentry/0/0}">addZoneSettings dev=0/zone=0</a>
-<a th:href="@{/addzonetimerentry/0/1}">addZoneSettings dev=0/zone=1</a>
-<a th:href="@{/addzonetimerentry/0/2}">addZoneSettings dev=0/zone=2</a>
-
-
 <h3>automatic mode</h3>
 
 <p>
@@ -30,14 +25,6 @@ Things to do:<br/>
 <h3>manual</h3>
 <p>
 accordingly to the request
-<pre>
-
-mode = manual, automatic, off
-
-manual = [
-  zones = [true, false]
-] 
-  
 ----: ()Stuff)
 
 Heating Settings:
@@ -62,10 +49,43 @@ Heating Settings:
   </tr>
 </table>
 
+<ul th:each="zone,zoneiter : ${heatingSettings.zones}">
+   <li th:inline="text">Zone [[${zoneiter.index}]]</li>
+   <ul>
+	   <li th:inline="text"><a href="switchManual/Automatic">[[${zone.mode}]]</a></li> <!--  TODO -->
+	   <!-- display only if {zone.mode==MANUAL} -->
+	   <li th:inline="text">Manual on?: [[${zone.manualModeSetting}]];</li>
+	   <li>Automatic settings:
+		   <ul th:each="autoSetting, iterstat2 :${zone.automaticModeSettings}">
+		     <li th:inline="text">Automatic settings [[${iterstat2.index}]]: [[${autoSetting.startingTime}]]-[[${autoSetting.endTime}]] on: [[${autoSetting.days}]] months: [[${autoSetting.months}]] 
+		     	<a href="">CHANGE LINK</a> | 
+		     	<a href="">DELETE</a></li>
+		   </ul>
+		   <ul>
+		   		<li><a th:href="@{/addzonetimerentry/{device}/{z}(device=${device},z=${zoneiter.index})}" th:inline="text">Add automatic setting</a></li>
+		   </ul>
+	   </li>
+   </ul>
+   
+</ul>
+
+
+<!-- 
+<a th:href="@{/addzonetimerentry/0/0}">addZoneSettings dev=0/zone=0</a>
+<a th:href="@{/addzonetimerentry/0/1}">addZoneSettings dev=0/zone=1</a>
+<a th:href="@{/addzonetimerentry/0/2}">addZoneSettings dev=0/zone=2</a>
+ -->
 
 <br/>Sequences:
 
 
+<pre>
+
+mode = manual, automatic, off
+
+manual = [
+  zones = [true, false]
+] 
 
 <a th:href="@{/setmanual/0/0/0}"> Zone 0 = off</a><br />
 <a th:href="@{/setmanual/0/0/1}"> Zone 0 = on</a><br />

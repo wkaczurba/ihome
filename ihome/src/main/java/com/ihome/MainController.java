@@ -42,14 +42,32 @@ public class MainController {
 //		throw e;
 //	}	
 
+//	@RequestMapping("/")
+//	public ModelAndView main() {
+//		HeatingSettings heatingSettings = repo.getSettings(0); // TODO: Change to handle multiple devices
+//	
+//		ModelAndView modelAndView = new ModelAndView("main");
+//		modelAndView.addObject("heatingSettings", heatingSettings);
+//		return modelAndView;
+//		
+//	}
+
 	@RequestMapping("/")
-	public ModelAndView main() {
-		HeatingSettings heatingSettings = repo.getSettings(0); // TODO: Change to handle multiple devices
+	public String main() {
+		return "redirect:/devices/0";
+		
+	}
+	
+	@RequestMapping("/devices/{device}")
+	public ModelAndView device(@PathVariable int device) {
+		HeatingSettings heatingSettings = repo.getSettings(device); // TODO: Change to handle multiple devices
 	
 		ModelAndView modelAndView = new ModelAndView("main");
+		modelAndView.addObject("device", device);
 		modelAndView.addObject("heatingSettings", heatingSettings);
 		return modelAndView;
 	}
+	
 	
 	// TODO: Only temporary function;
 	@RequestMapping(path="/addzonetimerentry/{device}/{zone}", method=RequestMethod.GET)

@@ -12,6 +12,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class ZoneSetting implements Serializable {
+	private long id;
 	private ZoneMode mode;
 	private Boolean manualModeSetting;
 	private Set<ZoneTimerEntry> automaticModeSettings = new HashSet<>();
@@ -108,6 +109,20 @@ public class ZoneSetting implements Serializable {
 		return "Zone [mode=" + mode + ", manualModeSetting=" + manualModeSetting + ", automaticModeSettings="
 				+ automaticModeSettings + "]";
 	}
+
+	/**
+	 * @return the id
+	 */
+	public long getId() {
+		return id;
+	}
+
+//	/**
+//	 * @param id the id to set
+//	 */
+//	public void setId(long id) {
+//		this.id = id;
+//	}
 
 	
 }

@@ -10,7 +10,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class HeatingSettings implements Serializable {
-	List<ZoneSetting> zones = new ArrayList<>();
+	private long id;
+	private List<ZoneSetting> zones = new ArrayList<>();
 	
 	private HeatingSettings() {
 	}
@@ -70,6 +71,20 @@ public class HeatingSettings implements Serializable {
 	public String toString() {
 		return "Heating [zones=" + zones + "]";
 	}
+
+	/**
+	 * @return the id
+	 */
+	public long getId() {
+		return id;
+	}
+
+//	/**
+//	 * @param id the id to set
+//	 */
+//	public void setId(long id) {
+//		this.id = id;
+//	}
 
 	
 }
