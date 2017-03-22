@@ -2,20 +2,37 @@ package com.ihome.node;
 
 import java.util.HashSet;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.IntStream;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@Entity
 public class ZoneSetting implements Serializable {
+	
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)		
 	private long id;
 	private ZoneMode mode;
 	private Boolean manualModeSetting;
+	
+	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)	
 	private Set<ZoneTimerEntry> automaticModeSettings = new HashSet<>();
+//	private List<ZoneTimerEntry> automaticModeSettings = new ArrayList<>();
 	
 	private ZoneSetting() {}
 	
@@ -42,13 +59,13 @@ public class ZoneSetting implements Serializable {
 		this(mode, manualModeSetting, new HashSet<>(Arrays.asList(automaticModeSettings)));
 	}	
 	
-	// TODO: Remove copying constructor;
-	public ZoneSetting(ZoneSetting zoneSetting) {
-		mode = zoneSetting.mode;
-		manualModeSetting = zoneSetting.manualModeSetting;
-		
-		zoneSetting.automaticModeSettings.stream().forEach(x -> automaticModeSettings.add(new ZoneTimerEntry(x)));
-	}
+//	// TODO: Remove copying constructor;
+//	public ZoneSetting(ZoneSetting zoneSetting) {
+//		mode = zoneSetting.mode;
+//		manualModeSetting = zoneSetting.manualModeSetting;
+//		
+//		zoneSetting.automaticModeSettings.stream().forEach(x -> automaticModeSettings.add(new ZoneTimerEntry(x)));
+//	}
 
 		
 	/**
@@ -87,27 +104,28 @@ public class ZoneSetting implements Serializable {
 	public void setAutomaticModeSettings(Set<ZoneTimerEntry> automaticModeSettings) {
 		this.automaticModeSettings = automaticModeSettings;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
-	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object that) {
-		return EqualsBuilder.reflectionEquals(this, that);
-	}
+//	/* (non-Javadoc)
+//	 * @see java.lang.Object#hashCode()
+//	 */
+//	@Override
+//	public int hashCode() {
+//		return HashCodeBuilder.reflectionHashCode(this, "id");
+//	}
+//	/* (non-Javadoc)
+//	 * @see java.lang.Object#equals(java.lang.Object)
+//	 */
+//	@Override
+//	public boolean equals(Object that) {
+//		return EqualsBuilder.reflectionEquals(this, that, "id");
+//	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Zone [mode=" + mode + ", manualModeSetting=" + manualModeSetting + ", automaticModeSettings="
-				+ automaticModeSettings + "]";
+		return "ZoneSetting [id=" + id + ", mode=" + mode + ", manualModeSetting=" + manualModeSetting
+				+ ", automaticModeSettings=" + automaticModeSettings + "]";
 	}
 
 	/**
@@ -117,12 +135,52 @@ public class ZoneSetting implements Serializable {
 		return id;
 	}
 
-//	/**
-//	 * @param id the id to set
-//	 */
-//	public void setId(long id) {
-//		this.id = id;
-//	}
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((automaticModeSettings == null) ? 0 : automaticModeSettings.hashCode());
+		result = prime * result + ((manualModeSetting == null) ? 0 : manualModeSetting.hashCode());
+		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ZoneSetting other = (ZoneSetting) obj;
+		if (automaticModeSettings == null) {
+			if (other.automaticModeSettings != null)
+				return false;
+		} else if (!automaticModeSettings.equals(other.automaticModeSettings))
+			return false;
+		if (manualModeSetting == null) {
+			if (other.manualModeSetting != null)
+				return false;
+		} else if (!manualModeSetting.equals(other.manualModeSetting))
+			return false;
+		if (mode != other.mode)
+			return false;
+		return true;
+	}
 
 	
 }

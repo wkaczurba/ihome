@@ -135,11 +135,13 @@ public class DataController {
 	}
 
 	@RequestMapping(path="/settings/{device}", method=RequestMethod.GET)
-	public HeatingSettings getSettings(@PathVariable int device) {
+	public HeatingSettings getSettings(@PathVariable long device) {
 		if (device != 0)
 			throw new IllegalArgumentException("Unknown device");
+		
+		return repo.getOne(device);
 	
-		return repo.getSettings(device);
+		//return repo.getSettings(device);
 	}
 	
 	@RequestMapping(path="/settingsFeedback/{device}", method=RequestMethod.PUT)
@@ -152,7 +154,10 @@ public class DataController {
 
 		return "index";
 	}
-	
+
+/*
+ TODO: To reenable the stuff below - will need to re-enable copying constructor in HeatingSettings.
+ * 	
 	// Generate random stuff
 	HeatingSettings heatingSettingsLoopbackTest;
 	@RequestMapping(path="/test/heatingSeetingloopback", method=RequestMethod.GET)
@@ -182,5 +187,6 @@ public class DataController {
 		}
 		return "index";
 	}
+*/	
 	
 }

@@ -11,17 +11,55 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.JoinColumn;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.springframework.format.annotation.DateTimeFormat;
 
+@Entity
 public class ZoneTimerEntry implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -9026775956199581651L;
+
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)	
+	@Column(name="zoneTimerEntry_id")
 	private long id;
+	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime startingTime;
+	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime endTime;
+	
+	// TODO: Follow this: http://stackoverflow.com/questions/2233943/persisting-a-set-of-days-of-the-week
+	// Try also this one: http://www.concretepage.com/hibernate/elementcollection_hibernate_annotation
+	// And: http://stackoverflow.com/questions/416208/jpa-map-collection-of-enums
+	
+	@ElementCollection(targetClass=DayOfWeek.class, fetch=FetchType.EAGER)
+	@JoinTable(name="tblDayOfWeek", joinColumns = @JoinColumn(name="zoneTimerEntry_id"))
+	@Column(name="days", nullable=false)
+	@Enumerated(EnumType.STRING)
 	private Set<DayOfWeek> days = new HashSet<>();
+	
+	@ElementCollection(targetClass=Month.class, fetch=FetchType.EAGER)
+	@JoinTable(name="tblMonth", joinColumns = @JoinColumn(name="zoneTimerEntry_id"))
+	@Column(name="months", nullable=false)
+	@Enumerated(EnumType.STRING)
 	private Set<Month> months = new HashSet<>();
 
 	private ZoneTimerEntry() {}
@@ -117,20 +155,20 @@ public class ZoneTimerEntry implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "ZoneTimerEntry [startingTime=" + startingTime + ", endTime=" + endTime + ", days=" + days + ", months="
-				+ months + "]";
+		return "ZoneTimerEntry [id=" + id + ", startingTime=" + startingTime + ", endTime=" + endTime + ", days=" + days
+				+ ", months=" + months + "]";
 	}
 
 	@Override
 	public int hashCode() {
-		return HashCodeBuilder.reflectionHashCode(this);
+		return HashCodeBuilder.reflectionHashCode(this, "id");
 	}
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
 	public boolean equals(Object that) {
-		return EqualsBuilder.reflectionEquals(this, that);
+		return EqualsBuilder.reflectionEquals(this, that, "id");
 	}
 
 

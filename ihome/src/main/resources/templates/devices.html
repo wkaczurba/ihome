@@ -5,15 +5,36 @@
 <title>Insert title here</title>
 </head>
 <body>
-  <h1>Index</h1>
+  <h1>Main page.</h1>
 
-<p>List of all HeatingSettings:</p>
-
-<ul th:each="hs : ${heatingSettingsList}">
-  <li th:text="${hs}"></li>
+<p>
+Things to do:<br/>
+- There should be three modes:
+<ul>
+ <li>automatic mode</li>
+ <li>manual</li>
+ <li>off</li>
 </ul>
+</p>
 
-<!--  <table border="1">
+<h3>automatic mode</h3>
+
+<p>
+</p>
+
+<h3>manual</h3>
+<p>
+accordingly to the request
+----: ()Stuff)
+
+Heating Settings:
+<span th:text="${heatingSettings}"></span>
+
+<div th:text="${heatingSettings.zones.size()}"></div>
+
+<div th:text="#{numbers.sequence(0, 3, 1)}"></div>
+
+<table border="1">
   <tr>
     <td>Zone Id</td>
     <td>Mode</td>
@@ -26,16 +47,14 @@
     <td th:text="${zone}" ></td>
     <td th:text="${iterstat}" ></td>
   </tr>
-</table> -->
+</table>
 
-<!--  <ul th:each="zone,zoneiter : ${heatingSettings.zones}">
+<ul th:each="zone,zoneiter : ${heatingSettings.zones}">
    <li th:inline="text">Zone [[${zoneiter.index}]]</li>
    <ul>
-	   <li th:inline="text"><a href="switchManual/Automatic">[[${zone.mode}]]</a></li> !! TODO 
--->
-
+	   <li th:inline="text"><a href="switchManual/Automatic">[[${zone.mode}]]</a></li> <!--  TODO -->
 	   <!-- display only if {zone.mode==MANUAL} -->
-<!--    <li th:inline="text">Manual on?: [[${zone.manualModeSetting}]];</li>
+	   <li th:inline="text">Manual on?: [[${zone.manualModeSetting}]];</li>
 	   <li>Automatic settings:
 		   <ul th:each="autoSetting, iterstat2 :${zone.automaticModeSettings}">
 		     <li th:inline="text">Automatic settings [[${iterstat2.index}]]: [[${autoSetting.startingTime}]]-[[${autoSetting.endTime}]] on: [[${autoSetting.days}]] months: [[${autoSetting.months}]] 
@@ -51,22 +70,36 @@
 </ul>
 
 
+<!-- 
+<a th:href="@{/addzonetimerentry/0/0}">addZoneSettings dev=0/zone=0</a>
+<a th:href="@{/addzonetimerentry/0/1}">addZoneSettings dev=0/zone=1</a>
+<a th:href="@{/addzonetimerentry/0/2}">addZoneSettings dev=0/zone=2</a>
+ -->
+
+<br/>Sequences:
+
 
 <pre>
+
 mode = manual, automatic, off
+
 manual = [
   zones = [true, false]
 ] 
+
 <a th:href="@{/setmanual/0/0/0}"> Zone 0 = off</a><br />
 <a th:href="@{/setmanual/0/0/1}"> Zone 0 = on</a><br />
 <a th:href="@{/setmanual/0/1/0}"> Zone 1 = off</a><br />
 <a th:href="@{/setmanual/0/1/1}"> Zone 1 = on</a><br />
 <a th:href="@{/setmanual/0/2/0}"> Zone 2 = off</a><br />
 <a th:href="@{/setmanual/0/2/1}"> Zone 2 = on</a><br />
+
+
+
 </pre>
   
 </p>
- -->
+
 
 </body>
 </html>
