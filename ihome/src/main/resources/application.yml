@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
   thymeleaf:
     cache: false
   datasource:
@@ -8,13 +11,18 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
-    #hibernate:
-      #ddl-auto: "create-drop"
+    hibernate:
+      ddl-auto: "create-drop"
       #ddl-auto: "create"
     properties:
       hibernate:
         show_sql: true
         format_sql: true
+#  hibernateProperties:
+#    current_session_context_class: thread # this is for test only.
+
+#hibernate:
+#  current_session_context_class: thread # this is for test only.
     
 logging:
   level:
@@ -22,3 +30,15 @@ logging:
     org:
       hibernate:
         type: TRACE     
+
+        
+# Spring actuator:
+#endpoints:
+#  beans:
+#    #id:springbeans
+#    sensitive: false
+#    enabled: true
+
+endpoints:
+  sensitive: false
+

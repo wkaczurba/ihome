@@ -2,8 +2,11 @@ package com.ihome.node;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.persistence.CascadeType;
@@ -28,18 +31,26 @@ public class HeatingSettings implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)	
-	private long id;
+	private Long id;
 	
 	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
 	//private List<ZoneSetting> zones = new ArrayList<>();
 	private List<ZoneSetting> zones = new ArrayList<>();
 	
-	private HeatingSettings() {
+	//@SuppressWarnings("unused")
+	private HeatingSettings() { 
+	}
+	
+	public HeatingSettings(ZoneSetting... zones) {
+		for (ZoneSetting zone : zones) {
+			this.zones.add(zone);
+		}
 	}
 	
 	public HeatingSettings(List<ZoneSetting> zones) {
-		this.zones.clear();
-		this.zones.addAll(zones);
+		throw new IllegalStateException("This funciton should not be called");
+//		this.zones.clear();
+//		this.zones.addAll(zones);
 		//this.zones = zones;
 	}
 	
@@ -51,10 +62,11 @@ public class HeatingSettings implements Serializable {
 		// TODO Auto-generated method stub
 		List<ZoneSetting> zones = new ArrayList<>();
 		
-		IntStream.range(0, (new Random()).nextInt(10) ).forEach(i -> zones.add( ZoneSetting.createRandom() ));
+		HeatingSettings hs = new HeatingSettings();
 		
+		IntStream.range(0, (new Random()).nextInt(10) ).forEach(i -> hs.getZones().add( ZoneSetting.createRandom() ));
 		
-		return new HeatingSettings(zones);
+		return hs;
 	}
 
 	/**
@@ -64,44 +76,71 @@ public class HeatingSettings implements Serializable {
 		return zones;
 	}
 
-	/**
-	 * @param zones the zones to set
-	 */
-	public void setZones(List<ZoneSetting> zones) {
-		//this.zones.clear();
-		//this.zones.addAll(zones);
-		this.zones = new ArrayList<>(zones);
-		//this.zones = zones;
+//	/**
+//	 * @param zones the zones to set
+//	 */
+//	public void setZones(List<ZoneSetting> zones) {
+//		//this.zones.clear();
+//		//this.zones.addAll(zones);
+//		//this.zones = new ArrayList<>(zones);
+//		//this.zones = zones;
+//		this.zones = zones;
+//	}
+	
+	public void addZone(ZoneSetting zone) {
+		zones.add(zone);
+	}
+	
+	public void addAllZones(Collection<? extends ZoneSetting> zones) {
+		this.zones.addAll(zones);
 	}
 
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#hashCode()
-//	 */
 //	@Override
-//	public int hashCode() {
-//		return HashCodeBuilder.reflectionHashCode(this, "id");
+//	public String toString() {
+//		return "HeatingSettings [id=" + id + ", zones=" + zones + "]";
 //	}
-//
-//	/* (non-Javadoc)
-//	 * @see java.lang.Object#equals(java.lang.Object)
-//	 */
-//	@Override
-//	public boolean equals(Object that) {
-//		return EqualsBuilder.reflectionEquals(this, that, "id");
-//	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+	
 	@Override
 	public String toString() {
-		return "HeatingSettings [id=" + id + ", zones=" + zones + "]";
+		StringBuilder sb = new StringBuilder();
+		sb.append("HeatingSettings id=\""+ id +"\":\n"); 
+		if (zones == null) {
+			sb.append("zones == null\n");
+		} else {
+			for (int i=0; i<zones.size(); i++) {
+				sb.append((i + ": " + zones.get(i).toString()) .replaceAll("(?m)^", "    "));
+				if (i < zones.size() - 1)
+					sb.append("\n");
+			}
+			sb.deleteCharAt(sb.lastIndexOf("\n"));
+			
+//			zones.forEach(x -> {
+//				sb.append(x.toString().replaceAll("(?m)^", "\t"));
+//				sb.append("\n");
+//			});
+			
+			
+//			sb.append(
+//				zones.stream().map(z -> {
+//					return Arrays.<String>asList(z.toString().split("\n"))
+//						.stream()
+//						.map(s -> "  " + s.replace("\r", "").trim())
+//						.collect(Collectors.joining(String.format("%n")));
+//				}).map(s -> "  " + s)
+//					.collect(Collectors.joining(String.format("%n")))
+//			);
+			
+			
+		}
+		//sb.append("]");
+		
+		return sb.toString();
 	}
 
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -112,47 +151,61 @@ public class HeatingSettings implements Serializable {
 		this.id = id;
 	}
 
+//	/* (non-Javadoc)
+//	 * @see java.lang.Object#hashCode()
+//	 */
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((zones == null) ? 0 : zones.hashCode());
+//		return result;
+//	}
+//
+//	/* (non-Javadoc)
+//	 * @see java.lang.Object#equals(java.lang.Object)
+//	 */
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		HeatingSettings other = (HeatingSettings) obj;
+//		if (zones == null) {
+//			if (other.zones != null)
+//				return false;
+//		} else { /*if (!zones.equals(other.zones))
+//			return false;*/
+//
+//		
+//			// This is hack as List will be replaced with PersistenceBag.
+//			// The latter does not compare elements one after another but compares object references only.  
+//			if (zones.size() != other.zones.size())
+//				return false;
+//			for (int i=0; i < zones.size(); i++)
+//				if (!zones.get(i).equals(other.zones.get(i)))
+//					return false;
+//					
+//		}
+//		return true;
+//	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((zones == null) ? 0 : zones.hashCode());
-		return result;
+		return HashCodeBuilder.reflectionHashCode(this, "id");
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		HeatingSettings other = (HeatingSettings) obj;
-		if (zones == null) {
-			if (other.zones != null)
-				return false;
-		} else { /*if (!zones.equals(other.zones))
-			return false;*/
-
-		
-			// This is hack as List will be replaced with PersistenceBag.
-			// The latter does not compare elements one after another but compares object references only.  
-			if (zones.size() != other.zones.size())
-				return false;
-			for (int i=0; i < zones.size(); i++)
-				if (!zones.get(i).equals(other.zones.get(i)))
-					return false;
-					
-		}
-		return true;
+	public boolean equals(Object that) {
+		return EqualsBuilder.reflectionEquals(this, that, "id");
 	}
-
-	
 }

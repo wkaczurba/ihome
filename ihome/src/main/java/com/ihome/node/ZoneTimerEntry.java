@@ -8,8 +8,10 @@ import java.time.Month;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -38,7 +40,7 @@ public class ZoneTimerEntry implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)	
 	@Column(name="zoneTimerEntry_id")
-	private long id;
+	private Long id;
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime startingTime;
@@ -80,6 +82,34 @@ public class ZoneTimerEntry implements Serializable {
 		
 		return new ZoneTimerEntry(startingTime, endTime, days, months);
 	}	
+	
+	// Convenience method.
+	/**
+	 * 
+	 * @param startHour - e.g. "17:03"
+	 * @param endHour - e.g. "22:03"
+	 * @param days - "Monday, Tuesday, Friday"
+	 * @param months - "JANUARY, February, March"
+	 */
+	public static ZoneTimerEntry create(String startHour, String endHour, String days, String months) {
+		String[] start = startHour.split(":");
+		String[] end = endHour.split(":");
+		Set<Month> m = Arrays.<String>asList( months.split(",") )
+				.stream()
+				.map(s -> s.trim().toUpperCase() )
+				.map(x -> Month.valueOf(x))
+				.collect(Collectors.toSet());
+		Set<DayOfWeek> d = Arrays.<String>asList( days.split(",") )
+				.stream()
+				.map(s -> s.trim().toUpperCase() )
+				.map(x -> DayOfWeek.valueOf(x))
+				.collect(Collectors.toSet());
+
+		LocalTime s = LocalTime.of(Integer.parseInt(start[0]), Integer.parseInt(start[1])); 
+		LocalTime e = LocalTime.of(Integer.parseInt(end[0]), Integer.parseInt(end[1]));
+		
+		return new ZoneTimerEntry(s, e, d, m);
+	}
 
 	public ZoneTimerEntry(LocalTime startingTime, LocalTime endTime, Set<DayOfWeek> days, Set<Month> months) {
 		super();
@@ -155,8 +185,17 @@ public class ZoneTimerEntry implements Serializable {
 	 */
 	@Override
 	public String toString() {
-		return "ZoneTimerEntry [id=" + id + ", startingTime=" + startingTime + ", endTime=" + endTime + ", days=" + days
-				+ ", months=" + months + "]";
+//		return "ZoneTimerEntry [id=" + id + ", startingTime=" + startingTime + ", endTime=" + endTime + ", days=" + days
+//				+ ", months=" + months + "]";
+		return "ZoneTimerEntry [id=" + id 
+				+ ", time: " + startingTime 
+				+ "-" + endTime + (days.size() > 0 ? " on: " : "") 
+				+ days.stream().map(s -> s.toString()).collect(Collectors.joining(","))
+		        + (months.size() > 0 ? " months: " : "")
+				+ months.stream().map(s -> s.toString()).collect(Collectors.joining(","))
+				+ "]";
+		//+ ", months=" + months + "]";
+		
 	}
 
 	@Override
@@ -175,7 +214,7 @@ public class ZoneTimerEntry implements Serializable {
 	/**
 	 * @return the id
 	 */
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 

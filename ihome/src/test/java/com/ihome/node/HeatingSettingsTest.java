@@ -4,7 +4,12 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class HeatingSettingsTest {
-	
+
+	@Test
+	public void toStringTest() {
+		HeatingSettings hs = HeatingSettings.createRandom();
+		System.out.println( hs );
+	}
 	
 //	@Test
 //	public void heatingTest1() {
