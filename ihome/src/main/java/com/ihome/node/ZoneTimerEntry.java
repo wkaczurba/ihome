@@ -39,7 +39,7 @@ public class ZoneTimerEntry implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)	
-	@Column(name="zoneTimerEntry_id")
+	@Column(name="ZONE_TIMER_ENTRY_id")
 	private Long id;
 	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
@@ -65,7 +65,6 @@ public class ZoneTimerEntry implements Serializable {
 	private Set<Month> months = new HashSet<>();
 
 	private ZoneTimerEntry() {}
-	
 
 	public static ZoneTimerEntry createRandom() {
 		// TODO Auto-generated method stub
@@ -202,9 +201,7 @@ public class ZoneTimerEntry implements Serializable {
 	public int hashCode() {
 		return HashCodeBuilder.reflectionHashCode(this, "id");
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
+
 	@Override
 	public boolean equals(Object that) {
 		return EqualsBuilder.reflectionEquals(this, that, "id");

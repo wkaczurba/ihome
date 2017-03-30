@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ihome.data.HeatingRepository;
+import com.ihome.data.ZoneTimerEntryRepository;
 import com.ihome.node.HeatingSettings;
 import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
@@ -39,11 +40,13 @@ import com.ihome.node.ZoneTimerEntry;
 public class MainController {
 	
 	HeatingRepository repo;
+	ZoneTimerEntryRepository zteRepo;
 //	private static final Logger logger = LoggerFactory.getLogger(ControllerConfig.class); 
 	
 	@Autowired
-	public MainController(HeatingRepository repo) {
+	public MainController(HeatingRepository repo, ZoneTimerEntryRepository zteRepo) {
 		this.repo = repo;
+		this.zteRepo = zteRepo;
 		
 		if (repo.findAll().stream().anyMatch(x -> x.getId() == 1)) {			
 			return;
@@ -103,8 +106,8 @@ public class MainController {
 	}
 	
 	@RequestMapping("/test1")
-	@Test
-	public String hibernateTest() {
+	//@Test
+	public String hibernateTst() {
 		// create entries first.
 		
 		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL, true);
@@ -180,6 +183,7 @@ public class MainController {
 	@RequestMapping("/devices/{device}")
 	public ModelAndView device(@PathVariable long device) {
 		HeatingSettings heatingSettings = repo.findOne(device); // TODO: Change to handle multiple devices
+		//HeatingSettings heatingSettings = repo.getOne(device); // TODO: Change to handle multiple devices
 		heatingSettings = repo.getOne(device); // TODO: Change to handle multiple devices
 	
 		ModelAndView modelAndView = new ModelAndView("devices");
@@ -205,9 +209,44 @@ public class MainController {
 		return modelAndView;
 	}
 	
+//	@RequestMapping(path="/deletezonetimerentry/{device}/{zone}/{id}", method=RequestMethod.GET)
+//	public String deleteZoneTimerEntry(@PathVariable long device, @PathVariable int zone, @PathVariable int id) {
+//		//HeatingSettings hs = repo.findOne(device);
+//		HeatingSettings hs = repo.getOne(device);
+//		ZoneSetting zs = hs.getZones().get(zone);
+//		
+//		Set<ZoneTimerEntry> zte = zs.getAutomaticModeSettings();
+//		ZoneTimerEntry z = null;
+//		try {
+//			z = zte.stream().filter(s -> s.getId()==id).findFirst().get(); // throws NoSuchElemenetException
+//			zte.remove(z);
+//			repo.save(hs);
+//		} catch (NoSuchElementException e) {
+//			throw new NoSuchElementException("Invalid ZoneTimerEntry id."); 
+//		}		
+//		return "redirect:/devices/" + device; // TODO: use proper concatenation tool. 
+//	}
+
 	@RequestMapping(path="/deletezonetimerentry/{device}/{zone}/{id}", method=RequestMethod.GET)
-	public String deleteZoneTimerEntry(@PathVariable long device, @PathVariable int zone, @PathVariable int id) {
+	public String deleteZoneTimerEntry(@PathVariable long device, @PathVariable int zone, @PathVariable long id) {
 		HeatingSettings hs = repo.findOne(device);
+		Set<ZoneTimerEntry> ztes = hs.getZones().get(zone).getAutomaticModeSettings();
+		
+		try {
+			ZoneTimerEntry zte = ztes.stream().filter(x -> x.getId() == id).findAny().get(); // this may throw an error
+			System.out.println("Deleting...: " + zte);
+			
+			//zteRepo.delete(id);
+			if (!hs.getZones().get(zone).getAutomaticModeSettings().remove(zte)) {
+				throw new RuntimeException("Element not removed, even though it was found");
+			}
+			repo.save(hs);
+		} catch (NoSuchElementException e) {
+			throw e;
+		}
+		
+
+		/*HeatingSettings hs = repo.getOne(device);
 		ZoneSetting zs = hs.getZones().get(zone);
 		
 		Set<ZoneTimerEntry> zte = zs.getAutomaticModeSettings();
@@ -218,10 +257,10 @@ public class MainController {
 			repo.save(hs);
 		} catch (NoSuchElementException e) {
 			throw new NoSuchElementException("Invalid ZoneTimerEntry id."); 
-		}		
+		}*/		
 		return "redirect:/devices/" + device; // TODO: use proper concatenation tool. 
 	}
-	
+
 
 	@RequestMapping(path="/addzonetimerentry/{device}/{zone}", method=RequestMethod.POST)
 	public String addZoneSettingsPost( 
@@ -233,7 +272,7 @@ public class MainController {
 		//ModelAndView modelAndView = new ModelAndView("addzonetimerentry");
 		
 		System.out.println("device: " + device);
-		repo.findAll();
+		repo.findAll(); // it fails without this one.
 		HeatingSettings fromDb = repo.getOne(device);
 		
 		/*if (!heatingSettings.equals(fromDb)) {
@@ -258,7 +297,7 @@ public class MainController {
 		System.out.println("  where z: " + z);
 		
 		fromDb.getZones().get(zone).getAutomaticModeSettings().add(z);
-		//repo.save(fromDb);
+		repo.save(fromDb);
 		
 		fromDb = repo.getOne(device);
 		System.out.println("fromDb:" + fromDb);
@@ -281,7 +320,8 @@ public class MainController {
 	@RequestMapping("/setmanual/{device}/{zone}/{on}")
 	public ModelAndView manualSetOn(@PathVariable long device, @PathVariable int zone, @PathVariable int on) {
 //		HeatingSettings heatingSettings = repo.getSettings(device); // This may throw an excepiton -> e.g. invalid device
-		HeatingSettings heatingSettings = repo.findOne(device);
+		//HeatingSettings heatingSettings = repo.findOne(device);
+		HeatingSettings heatingSettings = repo.getOne(device);
 		
 		if (heatingSettings.getZones().size() < zone)
 			throw new IllegalArgumentException("Invalid zone;"); // TODO: Create ean exception

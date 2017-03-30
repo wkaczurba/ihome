@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -31,10 +33,11 @@ public class HeatingSettings implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy=GenerationType.AUTO)	
+	@Column(name="HEATING_SETTINGS_ID")
 	private Long id;
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)
-	//private List<ZoneSetting> zones = new ArrayList<>();
+	@OneToMany(cascade = CascadeType.ALL /*, fetch=FetchType.EAGER*/, orphanRemoval=true)
+	@JoinColumn(name="HEATING_SETTINGS_ID")
 	private List<ZoneSetting> zones = new ArrayList<>();
 	
 	//@SuppressWarnings("unused")

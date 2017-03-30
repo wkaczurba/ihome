@@ -11,11 +11,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
@@ -31,16 +33,18 @@ public class ZoneSetting implements Serializable {
 	private static final long serialVersionUID = 985658386797337594L;
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)		
+	@GeneratedValue(strategy=GenerationType.AUTO)
+	@Column(name="ZONE_SETTING_ID")
 	private Long id;
 	private ZoneMode mode;
 	private Boolean manualModeSetting;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
-	//@JoinColumn(name = "STOCK_ID", nullable = false)	
-	HeatingSettings heatingSettings;  
+//	@ManyToOne(fetch = FetchType.EAGER)
+//	//@JoinColumn(name = "STOCK_ID", nullable = false)	
+//	HeatingSettings heatingSettings;  
 	
-	@OneToMany(cascade = CascadeType.ALL, fetch=FetchType.EAGER)	
+	@OneToMany(cascade = CascadeType.ALL, /*fetch=FetchType.EAGER*/ orphanRemoval=true)
+	@JoinColumn(name="ZONE_SETTING_ID")
 	private Set<ZoneTimerEntry> automaticModeSettings = new HashSet<>();
 	
 	private ZoneSetting() {}
@@ -71,13 +75,14 @@ public class ZoneSetting implements Serializable {
 //		this.manualModeSetting = manualModeSetting;
 //		this.automaticModeSettings.addAll(automaticModeSettings);
 	}	
-	
+
+	/*
 	public HeatingSettings getHeatingSettings() {
 		return heatingSettings;
 	}	
 	public void setHeatingSettings(HeatingSettings hs) {
 		this.heatingSettings = hs;
-	}
+	} */
 		
 //	// TODO: Remove copying constructor;
 //	public ZoneSetting(ZoneSetting zoneSetting) {

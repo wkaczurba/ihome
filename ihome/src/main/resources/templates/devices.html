@@ -58,8 +58,9 @@ Heating Settings:
 	   <li>Automatic settings:
 		   <ul th:each="autoSetting, iterstat2 :${zone.automaticModeSettings}">
 		     <li th:inline="text">Automatic settings [[${iterstat2.index}]]: [[${autoSetting.startingTime}]]-[[${autoSetting.endTime}]] on: [[${autoSetting.days}]] months: [[${autoSetting.months}]] 
-		     	<a href="">CHANGE LINK</a> | 
-		     	<a href="">DELETE</a></li>
+		     	<a href="">CHANGE</a>
+<!-- 		     	<a th:href="@{/devices/{device}/{z}/{id}(device=${device},z={zoneiter.index},id=${autoSetting.id})}">DELETE</a></li> -->
+		     	<a th:href="@{/deletezonetimerentry/{device}/{z}/{id}(device=${device},z=${zoneiter.index},id=${autoSetting.id})}">DELETE</a></li>
 		   </ul>
 		   <ul>
 		   		<li><a th:href="@{/addzonetimerentry/{device}/{z}(device=${device},z=${zoneiter.index})}" th:inline="text">Add automatic setting</a></li>
