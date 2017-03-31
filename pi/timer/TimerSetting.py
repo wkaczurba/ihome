@@ -45,7 +45,36 @@ class TimerSetting(object):
         self.startingTime = startingTime
         self.endTime = endTime
         
-        #x = { u'days': [ u'MONDAY', u'SATURDAY', u'FRIDAY', u'SUNDAY'], u'endTime': [5, 34], u'months': [u'FEBRUARY', u'MARCH'], u'startingTime': [21, 16]} 
+        #x = { u'days': [ u'MONDAY', u'SATURDAY', u'FRIDAY', u'SUNDAY'], u'endTime': [5, 34], u'months': [u'FEBRUARY', u'MARCH'], u'startingTime': [21, 16]}
+        
+    @staticmethod
+    def createTimerSetting(zte):
+        """ Creates a TimerSetting from ZoneTimerEntry """
+        if (not isinstance(zte, dict)):
+            raise TypeError("zte must be a dict")
+        
+        if (not ("days" in zte.keys() and
+            "months" in zte.keys() and
+            "startingTime" in zte.keys() and
+            "endTime" in zte.keys())):
+            raise ValueError("zte must contain all of the keys: 'days','months','startingTime','endTime')")
+        
+        return TimerSetting(\
+            zte['days'],\
+            zte['months'],\
+            zte['startingTime'],\
+            zte['endTime'])
+        
+    @staticmethod
+    def createTimerSettings(ztes):
+        """ Creates a list of TimerSettings from list of ZTEs (ZoneTimerEntries) """
+        if (not isinstance(ztes, list)):
+            raise TypeError("ztes must be a list of dicts.")
+                
+        timerSettings = []
+        for zte in ztes:
+            timerSettings.append(TimerSetting.createTimerSetting(zte))
+        return timerSettings
         
     def dateTimeMatches(self, datetime0, verbose=False):
         if (not isinstance(datetime0, datetime)):
@@ -103,4 +132,7 @@ class TimerSetting(object):
             
             return False
 
-    
+    def __str__(self, *args, **kwargs):
+        return "<TimerSettings (%s): time: %s-%s days:[%s] months:[%s]>" \
+             % (str(self.__hash__()), str(self.startingTime), str(self.endTime), str(self.days), str(self.months))  
+        #return object.__str__(self, *args, **kwargs)

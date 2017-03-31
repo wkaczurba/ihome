@@ -39,9 +39,9 @@ public class IhomeApplicationTests {
 		// create entries first.
 		
 		HeatingSettings hs = new HeatingSettings(
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));		
+				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
+				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
+				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));		
 		
 		repo.save(hs);		
 		Assert.assertEquals(3, hs.getZones().size());

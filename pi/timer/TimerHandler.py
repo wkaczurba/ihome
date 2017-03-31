@@ -24,9 +24,12 @@ class TimerHandler(object):
     def addObserver(self, observer):
         self.observers.append(observer)
         
+    def removeAllObservers(self):
+        self.observers=[]
+        
     def notifyObservers(self):
         for observer in self.observers:
-            observer()
+            observer(self)
     
     def setTimerSettings(self, timerSettings):
         if (not isinstance(timerSettings, (tuple, list))):
@@ -39,14 +42,20 @@ class TimerHandler(object):
         
         self.timerSettings = timerSettings
         
-    def getSettings(self):
-        return self.getSettings()
+    def getTimerSettings(self):
+        return self.timerSettings
     
     def checkIfFits(self, datetime0):
         for setting in self.timerSettings:
             if (setting.dateTimeMatches(datetime0)):
                 return True
         return False
+    
+    def isOn(self):
+        return self.checkIfFits(datetime.now())
+
+    def isOff(self):
+        return not self.checkIfFits(datetime.now())
     
     def check(self):
         return self.checkIfFits(datetime.now())
@@ -83,6 +92,13 @@ class TimerHandler(object):
             time.sleep(self.threadCheckPeriod)
             # TODO: It should calculate the closest time and sleep until then.
             
+    def __str__(self, *args, **kwargs):
+        s = "<timer.TimerHandler, hash: " + str(self.__hash__()) + "\n"
+        for setting in self.timerSettings:
+            s += "\t" + str(setting) + "\n"
+        
+        return s
+        #return object.__str__(self, *args, **kwargs)
         
 #     def monthMatches(self, date, listOfMonths):
 #         month = Month[date.month - 1]

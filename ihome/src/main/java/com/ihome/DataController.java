@@ -127,7 +127,7 @@ public class DataController {
 
 	@RequestMapping(path="/status/{device}", method=RequestMethod.PUT)
 	public String putStatus(@PathVariable int device, @RequestBody HeatingReadback rb) {
-		if (device != 0)
+		if (device != 1)
 			throw new IllegalArgumentException("Unknown device");
 		
 		System.out.println("GOT HeadingReadback:" + rb);
@@ -136,17 +136,17 @@ public class DataController {
 
 	@RequestMapping(path="/settings/{device}", method=RequestMethod.GET)
 	public HeatingSettings getSettings(@PathVariable long device) {
-		if (device != 0)
+		if (device != 1)
 			throw new IllegalArgumentException("Unknown device");
 		
-		return repo.getOne(device);
-	
+		//return repo.getOne(device);
 		//return repo.getSettings(device);
+		return repo.findOne(device);
 	}
 	
 	@RequestMapping(path="/settingsFeedback/{device}", method=RequestMethod.PUT)
 	public String putFeedbackSettings(@PathVariable int device, @RequestBody HeatingSettings fbSettings) {
-		if (device != 0)
+		if (device != 1)
 			throw new IllegalArgumentException("Unknown device");
 	
 		// TODO: Save to repo/handle it:

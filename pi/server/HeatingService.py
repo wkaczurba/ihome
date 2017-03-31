@@ -7,15 +7,17 @@ import pprint
 
 class HeatingService:
     
-    def __init__(self):
+    def __init__(self, device):
         logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         self.logger = logging.getLogger('Heating.py')
         
+        self.device = device
         self.zones= []
         self.settings = []
         self.settingsChangeObservers = []
         self.status = []
         self.getSettingsREST()
+        self.logger.debug("Started heatingService for device=%d" % (device))
         self.logger.warning("setRelays function missing.")
         self.logger.warning("Function to calculate what GPIO to set missing") # TODO: add function
         
@@ -27,14 +29,14 @@ class HeatingService:
         for observer in self.settingsChangeObservers:
             observer()
             
-    def getSettings(self):
+    def getTimerSettings(self):
         return self.settings
         
     def getSettingsREST(self):
-        r = requests.get(server.getName() + "/settings/0")
+        r = requests.get(server.getName() + "/settings/%d" % (self.device))
         status = r.status_code
         if (status != 200):
-            self.logger.error("/settings/0 did not work, http.status=%s" % (status))
+            self.logger.error("/settings/%d did not work, http.status=%s" % (self.device, status))
             
         newSettings = r.json()
         if (self.settings != newSettings):
@@ -51,20 +53,20 @@ class HeatingService:
     # statuses, e.g,:
     def putStatusREST(self, statuses = []): 
         data = {u'heatingOn': statuses}
-        r = requests.put(server.getName() + "/status/0", json=data)
+        r = requests.put(server.getName() + "/status/%d" % (self.device), json=data)
         # TODO: The code should be different.
         status = r.status_code
         if (status != 200):
-            self.logger.error('/status/0 (put) did not work, http.status=%s' % (status))
+            self.logger.error('/status/%d (put) did not work, http.status=%s' % (self.device, status))
         else:
             self.logger.debug("status put ok")
             
     def putSettingsREST(self, settings):
         self.logger.debug("putting:\n" + pprint.pformat(settings, 2))
-        r = requests.put(server.getName() + "/settingsFeedback/0", json=settings)
+        r = requests.put(server.getName() + "/settingsFeedback/%d" % (self.device), json=settings)
         status = r.status_code
         if (status != 200):
-            self.logger.error('/settingsFeedback/0 did not work, http.status=%s' % (status))
+            self.logger.error('/settingsFeedback/%d did not work, http.status=%s' % (self.device, status))
         else:
             self.logger.debug("putSettingsREST -> fbSettings put ok")
             
