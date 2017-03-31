@@ -35,18 +35,14 @@ import com.ihome.node.ZoneTimerEntry;
 // http://www.logicbig.com/tutorials/spring-framework/spring-web-mvc/spring-model-attribute-with-session/
 
 @Controller
-//@SessionAttributes("heatingSettings")
-//@Transactional
 public class MainController {
 	
 	HeatingRepository repo;
-	ZoneTimerEntryRepository zteRepo;
 //	private static final Logger logger = LoggerFactory.getLogger(ControllerConfig.class); 
 	
 	@Autowired
 	public MainController(HeatingRepository repo, ZoneTimerEntryRepository zteRepo) {
 		this.repo = repo;
-		this.zteRepo = zteRepo;
 		
 		if (repo.findAll().stream().anyMatch(x -> x.getId() == 1)) {			
 			return;
@@ -85,9 +81,9 @@ public class MainController {
 	
 	@RequestMapping("/create")
 	public ModelAndView create() {
-		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL, true);
-		ZoneSetting zs1 = new ZoneSetting(ZoneMode.MANUAL, true);
-		ZoneSetting zs2 = new ZoneSetting(ZoneMode.MANUAL, true);
+		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
+		ZoneSetting zs1 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
+		ZoneSetting zs2 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
 		zs0.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		zs1.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		zs2.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
@@ -110,9 +106,9 @@ public class MainController {
 	public String hibernateTst() {
 		// create entries first.
 		
-		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL, true);
-		ZoneSetting zs1 = new ZoneSetting(ZoneMode.MANUAL, true);
-		ZoneSetting zs2 = new ZoneSetting(ZoneMode.MANUAL, true);
+		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
+		ZoneSetting zs1 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
+		ZoneSetting zs2 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
 		zs0.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		zs1.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		zs2.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
@@ -152,32 +148,13 @@ public class MainController {
 
 	@RequestMapping("/")
 	public String main(Model model) {
-
-		
-//		System.out.println("After saving: " + hs);
-//		//return "redirect:/devices/0";
-//		System.out.println("SAVED as: " + hs.getId());
-		
-//		System.out.println("GETTING IT:...");
-////		HeatingSettings hsRetrieved = repo.getOne(hs.getId());
-////		HeatingSettings hsRetrieved = repo.getOne(1L);
-//		List<HeatingSettings> list = repo.findAll();
-//		
-//		System.out.println( "id:" + list.get(0).getId() );
-//		System.out.println( list.get(0) );
-		
-		//HeatingSettings hsRetrieved = repo.getOne(1L);
-		
-		//HeatingSettings hsRetrieved = repo.findOne(1L);
-		//System.out.println("GOT: " + hsRetrieved);
 		
 		List<HeatingSettings> heatingSettingsList = repo.findAll();
-		System.out.println(heatingSettingsList);
-		
-		//model.addAllAttributes(heatingSettingsList);
+		System.out.println(heatingSettingsList);		
 		model.addAttribute(heatingSettingsList);
 		
 		return "main";
+		//return "redirect:/devices/1";
 	}
 	
 	@RequestMapping("/devices/{device}")
@@ -193,6 +170,33 @@ public class MainController {
 		return modelAndView;
 	}
 	
+	@RequestMapping(path="/switchzone/automatic/{device}/{zone}", method=RequestMethod.GET)
+	public String switchZoneToAutomatic(@PathVariable long device, @PathVariable int zone) {
+		HeatingSettings hs = repo.findOne(device);
+		hs.getZones().get(zone).setMode(ZoneMode.AUTOMATIC);
+		repo.save(hs);
+		
+		return "redirect:/devices/" + device;
+	}
+
+	@RequestMapping(path="/switchzone/manualOn/{device}/{zone}", method=RequestMethod.GET)
+	public String switchZoneToManualOn(@PathVariable long device, @PathVariable int zone) {
+		HeatingSettings hs = repo.findOne(device);
+		hs.getZones().get(zone).setMode(ZoneMode.MANUAL_ON);
+		repo.save(hs);
+		
+		return "redirect:/devices/" + device;
+	}
+
+	@RequestMapping(path="/switchzone/manualOff/{device}/{zone}", method=RequestMethod.GET)
+	public String switchZoneToManualOff(@PathVariable long device, @PathVariable int zone) {
+		HeatingSettings hs = repo.findOne(device);
+		hs.getZones().get(zone).setMode(ZoneMode.MANUAL_OFF);
+		repo.save(hs);
+		
+		return "redirect:/devices/" + device;
+	}
+
 	// TODO: Only temporary function;
 	@RequestMapping(path="/addzonetimerentry/{device}/{zone}", method=RequestMethod.GET)
 	public ModelAndView addZoneSettingsGet(@PathVariable long device, @PathVariable int zone) {
@@ -228,6 +232,7 @@ public class MainController {
 //	}
 
 	@RequestMapping(path="/deletezonetimerentry/{device}/{zone}/{id}", method=RequestMethod.GET)
+	@Transactional
 	public String deleteZoneTimerEntry(@PathVariable long device, @PathVariable int zone, @PathVariable long id) {
 		HeatingSettings hs = repo.findOne(device);
 		Set<ZoneTimerEntry> ztes = hs.getZones().get(zone).getAutomaticModeSettings();
@@ -329,8 +334,8 @@ public class MainController {
 		if (on != 0 && on != 1)
 			throw new IllegalArgumentException("Invalid on/off status;"); // TODO: Create ean exception
 		
-		heatingSettings.getZones().get(zone).setManualModeSetting( (on == 1) );
-		heatingSettings.getZones().get(zone).setMode(ZoneMode.MANUAL);
+//		heatingSettings.getZones().get(zone).setManualModeSetting( (on == 1) );
+		heatingSettings.getZones().get(zone).setMode(ZoneMode.MANUAL_ON);
 		System.out.println("Saving:" + heatingSettings);
 //		repo.setSettings(device, heatingSettings);
 		repo.save(heatingSettings); // FIXME: This does not guarantee device number.		

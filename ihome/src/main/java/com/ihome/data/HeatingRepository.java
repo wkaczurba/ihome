@@ -21,9 +21,9 @@ public interface HeatingRepository extends JpaRepository<HeatingSettings, Long> 
 	 */
 	default HeatingSettings createInitial() {
 		HeatingSettings hs = new HeatingSettings(
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL, true, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));			
+				new ZoneSetting(ZoneMode.MANUAL_ON, /*true,*/ ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
+				new ZoneSetting(ZoneMode.MANUAL_ON, /*true,*/ ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
+				new ZoneSetting(ZoneMode.MANUAL_ON, /*true,*/ ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));			
 		
 /*		ZoneSetting zs0 = new ZoneSetting(ZoneMode.MANUAL, true);
 		ZoneSetting zs1 = new ZoneSetting(ZoneMode.MANUAL, true);

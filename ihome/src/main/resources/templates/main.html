@@ -5,13 +5,21 @@
 <title>Insert title here</title>
 </head>
 <body>
-  <h1>Index</h1>
+  <h1>Main</h1>
 
-<p>List of all HeatingSettings:</p>
+<p>List of all devices:</p>
 
+<h3>Devices:</h3>
 <ul th:each="hs : ${heatingSettingsList}">
-  <li th:text="${hs}"></li>
+  <li th:inline="text"><a th:href="@{/devices/{dev}(dev=${hs.id})}">Device: [[${hs.id}]], zones: [[${hs.zones == null? 0 : hs.zones.size()}]]</a></li>
+  <!--  <li th:text="${hs}"> -->
 </ul>
+
+<h3>Nodes:</h3>
+<ul>
+  <li>TODO: Add nodes with their statuses. (ie. all Raspeberry PIs)</li>
+</ul>
+
 
 <!--  <table border="1">
   <tr>

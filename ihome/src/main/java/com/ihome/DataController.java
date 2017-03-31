@@ -95,9 +95,9 @@ public class DataController {
 				new HashSet<DayOfWeek>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY)),
 				new HashSet<Month>(Arrays.asList(Month.NOVEMBER, Month.OCTOBER, Month.MARCH)));
 
-		ZoneSetting z1 = new ZoneSetting(ZoneMode.AUTOMATIC, false, z1a, z1b);
-		ZoneSetting z2 = new ZoneSetting(ZoneMode.AUTOMATIC, false, z2a, z2b);
-		ZoneSetting z3 = new ZoneSetting(ZoneMode.MANUAL, true);
+		ZoneSetting z1 = new ZoneSetting(ZoneMode.AUTOMATIC/*, false,*/, z1a, z1b);
+		ZoneSetting z2 = new ZoneSetting(ZoneMode.AUTOMATIC/*, false,*/, z2a, z2b);
+		ZoneSetting z3 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
 
 		HeatingSettings heating = new HeatingSettings(Arrays.asList(z1, z2, z3));
 		return heating;	

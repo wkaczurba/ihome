@@ -37,7 +37,7 @@ public class ZoneSetting implements Serializable {
 	@Column(name="ZONE_SETTING_ID")
 	private Long id;
 	private ZoneMode mode;
-	private Boolean manualModeSetting;
+	//private Boolean manualModeSetting;
 	
 //	@ManyToOne(fetch = FetchType.EAGER)
 //	//@JoinColumn(name = "STOCK_ID", nullable = false)	
@@ -52,25 +52,25 @@ public class ZoneSetting implements Serializable {
 	// Randomize stuff:
 	public static ZoneSetting createRandom() {
 		ZoneMode mode = ZoneMode.values()[(int) (Math.random() * ZoneMode.values().length)];
-		Boolean manualModeSetting = (Math.random() > 0.5);
+//		Boolean manualModeSetting = (Math.random() > 0.5);
 		
 		Set<ZoneTimerEntry> automaticModeSettings = new HashSet<>();
 		IntStream.range(0, (new Random()).nextInt(10)).forEach(x -> automaticModeSettings.add(ZoneTimerEntry.createRandom()));
 		
-		return new ZoneSetting(mode, manualModeSetting, automaticModeSettings);
+		return new ZoneSetting(mode, /*manualModeSetting,*/ automaticModeSettings);
 		
 	}
 	
-	public ZoneSetting(ZoneMode mode, Boolean manualModeSetting, ZoneTimerEntry... automaticModeSettings) {
+	public ZoneSetting(ZoneMode mode, /*Boolean manualModeSetting,*/ ZoneTimerEntry... automaticModeSettings) {
 		this.mode = mode;
-		this.manualModeSetting = manualModeSetting;		
+//		this.manualModeSetting = manualModeSetting;		
 		for (ZoneTimerEntry zte : automaticModeSettings) {
 			this.automaticModeSettings.add(zte);
 		}
 	}
 	
-	public ZoneSetting(ZoneMode mode, Boolean manualModeSetting, Set<ZoneTimerEntry> automaticModeSettings) {
-		this(mode, manualModeSetting, automaticModeSettings.toArray(new ZoneTimerEntry[0]));
+	public ZoneSetting(ZoneMode mode, /*Boolean manualModeSetting,*/ Set<ZoneTimerEntry> automaticModeSettings) {
+		this(mode, /*manualModeSetting,*/ automaticModeSettings.toArray(new ZoneTimerEntry[0]));
 //		this.mode = mode;
 //		this.manualModeSetting = manualModeSetting;
 //		this.automaticModeSettings.addAll(automaticModeSettings);
@@ -105,18 +105,18 @@ public class ZoneSetting implements Serializable {
 	public void setMode(ZoneMode mode) {
 		this.mode = mode;
 	}
-	/**
-	 * @return the manualModeSetting
-	 */
-	public Boolean getManualModeSetting() {
-		return manualModeSetting;
-	}
-	/**
-	 * @param manualModeSetting the manualModeSetting to set
-	 */
-	public void setManualModeSetting(Boolean manualModeSetting) {
-		this.manualModeSetting = manualModeSetting;
-	}
+//	/**
+//	 * @return the manualModeSetting
+//	 */
+//	public Boolean getManualModeSetting() {
+//		return manualModeSetting;
+//	}
+//	/**
+//	 * @param manualModeSetting the manualModeSetting to set
+//	 */
+//	public void setManualModeSetting(Boolean manualModeSetting) {
+//		this.manualModeSetting = manualModeSetting;
+//	}
 	/**
 	 * @return the automaticModeSettings
 	 */
@@ -153,7 +153,7 @@ public class ZoneSetting implements Serializable {
 //				+ ", automaticModeSettings=" + automaticModeSettings + "]";
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append("ZoneSetting id=" + id + ", mode=" + mode + ", manualModeSetting=" + manualModeSetting + ":\n");
+		sb.append("ZoneSetting id=" + id + ", mode=" + mode + /*", manualModeSetting=" + manualModeSetting + */ ":\n");
 		automaticModeSettings.forEach(x -> {
 			sb.append(x.toString().replaceAll("(?m)^", "\t"));
 			sb.append("\n");
@@ -185,7 +185,7 @@ public class ZoneSetting implements Serializable {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((automaticModeSettings == null) ? 0 : automaticModeSettings.hashCode());
-		result = prime * result + ((manualModeSetting == null) ? 0 : manualModeSetting.hashCode());
+//		result = prime * result + ((manualModeSetting == null) ? 0 : manualModeSetting.hashCode());
 		result = prime * result + ((mode == null) ? 0 : mode.hashCode());
 		return result;
 	}
@@ -207,11 +207,11 @@ public class ZoneSetting implements Serializable {
 				return false;
 		} else if (!automaticModeSettings.equals(other.automaticModeSettings))
 			return false;
-		if (manualModeSetting == null) {
-			if (other.manualModeSetting != null)
-				return false;
-		} else if (!manualModeSetting.equals(other.manualModeSetting))
-			return false;
+//		if (manualModeSetting == null) {
+//			if (other.manualModeSetting != null)
+//				return false;
+//		} else if (!manualModeSetting.equals(other.manualModeSetting))
+//			return false;
 		if (mode != other.mode)
 			return false;
 		return true;

@@ -5,25 +5,77 @@
 <title>Insert title here</title>
 </head>
 <body>
-  <h1>Main page.</h1>
+  <h1 th:inline="text">Device [[${device}]]</h1>
 
+
+<h2>Status:</h2>
 <p>
-Things to do:<br/>
-- There should be three modes:
-<ul>
- <li>automatic mode</li>
- <li>manual</li>
- <li>off</li>
+To add: when was the last readback / some STOMP to be put here...
+</p>
+<h2>Settings:</h2>
+<p>
+<ul th:each="zone,zoneiter : ${heatingSettings.zones}">
+   <li th:inline="text">Zone [[${zoneiter.index}]]</li>
+   <ul>
+<!--   <li th:inline="text"><a href="switchManual/Automatic">[[${zone.mode}]]</a></li> --> <!--  TODO -->
+	   <!-- display only if {zone.mode==MANUAL} -->
+<!--    <li th:inline="text">Manual on?: [[${zone.manualModeSetting}]];</li> -->
+	   <!-- <li th:inline="text">Manual on?: [[${zone.mode == T(com.ihome.node.ZoneMode).MANUAL ? (zone.manualModeSetting == true ? "MANUAL ON" : "MANUAL OFF") : ("AUTOMATIC")}]];</li> -->	   
+	   
+<!--    <li th:inline="text">[[${ (zone.mode == T(com.ihome.node.ZoneMode).MANUAL and zone.manualModeSetting == true) ? "MANUAL ON" : "-"}]];</li>
+	   <li th:inline="text">[[${ (zone.mode == T(com.ihome.node.ZoneMode).MANUAL and zone.manualModeSetting == false) ? "MANUAL OFF" : "-"}]];</li>
+	   <li th:inline="text">[[${ (zone.mode == T(com.ihome.node.ZoneMode).AUTOMATIC and zone.manualModeSetting == true) ? "AUTOMATIC" : "-"}]];</li> -->
+	   
+<!--   <th:block th:switch="${zone.mode}">
+	     <li th:case="${T(com.ihome.node.ZoneMode).MANUAL_ON}">MANUAL_ON | <a href="">MANUAL_OFF</a> | <a href="">AUTOMATIC</a></li>
+	     <li th:case="${T(com.ihome.node.ZoneMode).MANUAL_OFF}">MANUAL_OFF | </li>
+	     <li th:case="${T(com.ihome.node.ZoneMode).MANUAL_AUTOMATIC}">AUTOMATIC| </li>
+	   </th:block> -->
+	   
+	   <li>
+	     <!-- <a th:if="${zone.mode != T(com.ihome.node.ZoneMode).MANUAL_ON}" href="">MANUAL_ON</a> -->
+	     
+	     <th:block th:switch="${zone.mode == T(com.ihome.node.ZoneMode).MANUAL_ON}">
+	       <b th:case="true">MANUAL_ON</b>
+	       <a th:case="false" th:href="@{/switchzone/manualOn/{device}/{z}(device=${device},z=${zoneiter.index})}">MANUAL_ON</a>
+	     </th:block> |
+	     <th:block th:switch="${zone.mode == T(com.ihome.node.ZoneMode).MANUAL_OFF}">
+	       <b th:case="true">MANUAL_OFF</b>
+	       <a th:case="false" th:href="@{/switchzone/manualOff/{device}/{z}(device=${device},z=${zoneiter.index})}">MANUAL_OFF</a>
+	     </th:block> |
+	     <th:block th:switch="${zone.mode == T(com.ihome.node.ZoneMode).AUTOMATIC}">
+	       <b th:case="true">AUTOMATIC</b>
+	       <a th:case="false" th:href="@{/switchzone/automatic/{device}/{z}(device=${device},z=${zoneiter.index})}">AUTOMATIC</a>
+	     </th:block>
+	   </li>
+	   
+	   <li>Automatic settings:
+		   <ul th:each="autoSetting, iterstat2 :${zone.automaticModeSettings}">
+		     <li th:inline="text">Automatic settings [[${iterstat2.index}]]: [[${autoSetting.startingTime}]]-[[${autoSetting.endTime}]] on: [[${autoSetting.days}]] months: [[${autoSetting.months}]] 
+		     	<a href="">CHANGE</a>
+<!-- 		     	<a th:href="@{/devices/{device}/{z}/{id}(device=${device},z={zoneiter.index},id=${autoSetting.id})}">DELETE</a></li> -->
+		     	<a th:href="@{/deletezonetimerentry/{device}/{z}/{id}(device=${device},z=${zoneiter.index},id=${autoSetting.id})}">DELETE</a></li>
+		   </ul>
+		   <ul>
+		   		<li><a th:href="@{/addzonetimerentry/{device}/{z}(device=${device},z=${zoneiter.index})}" th:inline="text">Add automatic setting</a></li>
+		   </ul>
+	   </li>
+   </ul>
+   
 </ul>
+
+
+<!-- 
+<a th:href="@{/addzonetimerentry/0/0}">addZoneSettings dev=0/zone=0</a>
+<a th:href="@{/addzonetimerentry/0/1}">addZoneSettings dev=0/zone=1</a>
+<a th:href="@{/addzonetimerentry/0/2}">addZoneSettings dev=0/zone=2</a>
+ -->
+
+<br/>  
 </p>
-
-<h3>automatic mode</h3>
-
-<p>
-</p>
-
-<h3>manual</h3>
-<p>
+<br />
+<hr />
+<h3>Debug</h3>
 accordingly to the request
 ----: ()Stuff)
 
@@ -49,57 +101,6 @@ Heating Settings:
   </tr>
 </table>
 
-<ul th:each="zone,zoneiter : ${heatingSettings.zones}">
-   <li th:inline="text">Zone [[${zoneiter.index}]]</li>
-   <ul>
-	   <li th:inline="text"><a href="switchManual/Automatic">[[${zone.mode}]]</a></li> <!--  TODO -->
-	   <!-- display only if {zone.mode==MANUAL} -->
-	   <li th:inline="text">Manual on?: [[${zone.manualModeSetting}]];</li>
-	   <li>Automatic settings:
-		   <ul th:each="autoSetting, iterstat2 :${zone.automaticModeSettings}">
-		     <li th:inline="text">Automatic settings [[${iterstat2.index}]]: [[${autoSetting.startingTime}]]-[[${autoSetting.endTime}]] on: [[${autoSetting.days}]] months: [[${autoSetting.months}]] 
-		     	<a href="">CHANGE</a>
-<!-- 		     	<a th:href="@{/devices/{device}/{z}/{id}(device=${device},z={zoneiter.index},id=${autoSetting.id})}">DELETE</a></li> -->
-		     	<a th:href="@{/deletezonetimerentry/{device}/{z}/{id}(device=${device},z=${zoneiter.index},id=${autoSetting.id})}">DELETE</a></li>
-		   </ul>
-		   <ul>
-		   		<li><a th:href="@{/addzonetimerentry/{device}/{z}(device=${device},z=${zoneiter.index})}" th:inline="text">Add automatic setting</a></li>
-		   </ul>
-	   </li>
-   </ul>
-   
-</ul>
-
-
-<!-- 
-<a th:href="@{/addzonetimerentry/0/0}">addZoneSettings dev=0/zone=0</a>
-<a th:href="@{/addzonetimerentry/0/1}">addZoneSettings dev=0/zone=1</a>
-<a th:href="@{/addzonetimerentry/0/2}">addZoneSettings dev=0/zone=2</a>
- -->
-
-<br/>Sequences:
-
-
-<pre>
-
-mode = manual, automatic, off
-
-manual = [
-  zones = [true, false]
-] 
-
-<a th:href="@{/setmanual/0/0/0}"> Zone 0 = off</a><br />
-<a th:href="@{/setmanual/0/0/1}"> Zone 0 = on</a><br />
-<a th:href="@{/setmanual/0/1/0}"> Zone 1 = off</a><br />
-<a th:href="@{/setmanual/0/1/1}"> Zone 1 = on</a><br />
-<a th:href="@{/setmanual/0/2/0}"> Zone 2 = off</a><br />
-<a th:href="@{/setmanual/0/2/1}"> Zone 2 = on</a><br />
-
-
-
-</pre>
-  
-</p>
 
 
 </body>
