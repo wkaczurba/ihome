@@ -45,7 +45,10 @@ class TimerHandler(object):
     def getTimerSettings(self):
         return self.timerSettings
     
-    def checkIfFits(self, datetime0):
+    def checkIfFits(self, datetime0 = None):
+        if (datetime0 == None):
+            datetime0 = datetime.now()
+        
         for setting in self.timerSettings:
             if (setting.dateTimeMatches(datetime0)):
                 return True

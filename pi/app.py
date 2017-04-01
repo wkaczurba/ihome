@@ -9,16 +9,13 @@ import time
 import pprint
 import datetime
 from timer.TimerHandler import TimerHandler
-#from sets import Set
+from ZoneHandler import ZoneHandler
 
-# TODO: Rework it so it is a class...
+# TODO: Proper GPIO class/object instead of Lambdas.
 
 gpios = [] # settings of gpios
 timerHandlers = []
 
-def setRelays(relays):
-    print "TODO Function -> set relays"
-    
 #def tmpChange(zoneId, timerHandler):
 def tmpChange(timerHandler):
     print "tmpChange : zone_id == %d; timerHandler=%s" % (timerHandler.zoneId, timerHandler.__str__())    
@@ -28,14 +25,6 @@ def applyTimerHandlers(settings):
     global timerHandlers
     
     zones = settings['zones']
-
-#     if (len(timerHandlers) != len(zones)):
-#         # UPDATE IF NEEDED:     
-#         if (len(timerHandlers) < len(zones)):
-#             timerHandlers += [None,] * (len(zones) - len(timerHandlers))
-#         elif (len(timerHandlers) < len(zones)):
-#             # DELETE/SHUT ALL IRRELEVANT (NON-EXISTING) TIMERS.
-#             raise NotImplementedError("Zones deleted - not implemented") 
 
     for i in range(0, len(zones)):
         zone = zones[i]
@@ -61,16 +50,7 @@ def applyTimerHandlers(settings):
             timerHandler.setTimerSettings(timerSettings)
             #TODO: timerHandler.addObserver(lambda: print("timer %d changed to %d" % (i, timerHandler.isOn())))
             # THIS REQUIRES FIXING:
-            timerHandler.addObserver(lambda x: tmpChange(x))
-            
-            
-            #FIXME: There is a mismatch:  tmpChange always says that last timerHandler from timerHandlers calls tmpChange.
-            #Change timerHandler so it prints all TimerSettings
-            #Make sure all TimerSettings are properly set
-            #Then make sure that tmpChange lambda is correct, and params provided are not constant [what appears to be the case]
-            #@If the problem is with lambda -> Possible solution: -> pass zone id throguh timerHandler.
-    
-                
+            timerHandler.addObserver(lambda x: tmpChange(x))            
             #TODO: timerHandler.notifyObservers()
             timerHandler.start()
             print "appending new timer i=%d, %s to %s" % (i, timerHandler, timerHandlers)
@@ -90,7 +70,6 @@ def applyTimerHandlers(settings):
     print "timerHandlers: " + str(timerHandlers)
         #TODO: Update all TimerHandler
   
-
 def applySettings(settings):
     global gpios, timerHandlers
     print "Apllying settings: " + pprint.pformat(settings)
@@ -107,20 +86,11 @@ def applySettings(settings):
     for i in range(0, len(zones)):
         zone = zones[i]
         if (zone['mode'] == "MANUAL_ON"):
-            #if (not zone['manualModeSetting'] in (True, False)):
-            #    raise ValueError("Zone[%d].manualModeSetting is neither True or False. It is: %s" % (i, str(zone['manualModeSetting'])))
-            #gpios[i] = zone['manualModeSetting']
             assert(len(gpios) == i)
-            #gpios.append(zone['manualModeSetting'])
             gpios.append(True)
-            #timerHandlers.append(None)
-            
         elif (zone['mode'] == "MANUAL_OFF"):
             gpios.append(False)
-            #timerHandlers.append(None)
-            
         elif (zone['mode'] == "AUTOMATIC"):
-            #now = datetime.datetime.now()
             settings = []
             for automaticModeSettings in zone['automaticModeSettings']:
                 days = automaticModeSettings['days']
@@ -135,16 +105,80 @@ def applySettings(settings):
     
     print "GPIOs: " + str(gpios)
     #status = [True, True, True]
-    setRelays(gpios)
     status = gpios
     return gpios
 
+zoneHandlers = []
+
+# TODO: Modify GPIOs so change of their status is automatically send as a status
+gpios = []
+
+def gpioOn(zoneHandler):
+    global gpios
+    #print "zoneHandler: " + str(zoneHandler) + " turns gpioOn (zoneId=%d)" % (zoneHandler.zoneId)
+    print "turns gpioOn (zoneId=%d)" % (zoneHandler.zoneId)
+    #print "len(gpios)=%d" % (len(gpios))
+    gpios[zoneHandler.zoneId] = 1;
+    # TODO: The change of GPIO should trigger status update
+
+def gpioOff(zoneHandler):
+    global gpios
+    #print "zoneHandler: " + str(zoneHandler) + " turns gpioOff (zoneId=%d)" % (zoneHandler.zoneId)
+    print "turns gpioOff (zoneId=%d)" % (zoneHandler.zoneId)
+    #print "len(gpios)=%d" % (len(gpios))
+    gpios[zoneHandler.zoneId] = 1;
+    # TODO: The change of GPIO should trigger status update
+
+def updateZoneHandlers(settings):
+    global zoneHandlers, gpios
+    
+    zonesSettings = settings['zones']
+    #gpios = [0,] * len(zonesSettings) # initialize with zeros
+    for i in range(0, len(zonesSettings)):
+        zoneSetting = zonesSettings[i]
+        
+        if (i >= len(gpios)):
+            gpios.append(0) # it will be set automatically later
+                
+        # Get:
+        if (i < len(zoneHandlers)):
+            # Get existing timers:
+            zoneHandler = zoneHandlers[i]
+        elif (i >= len(timerHandlers)):
+            # Create new:            
+            zoneHandler = ZoneHandler(zoneSetting)
+            zoneHandler.zoneId = i
+            zoneHandler.setGpioOn(lambda zoneHndlr: gpioOn(zoneHndlr))
+            zoneHandler.setGpioOff(lambda zoneHndlr: gpioOff(zoneHndlr))
+            
+        # Update / set.
+        zoneHandler.setZoneSetting(zoneSetting)
+                          
+    for i in range(len(zonesSettings), len(zoneHandlers)):
+        # Delete...
+        
+        raise AssertionError("This one should never get here!")
+        print "deleting timer for zone: %d" % (i)
+        zoneHandlers[i].kill()
+        zoneHandlers[i] = None
+        
+    # Remove from the list Nones
+    gpios = gpios[0:len(zonesSettings)]
+    zoneHandlers = zoneHandlers[0:len(zonesSettings)]
+    
+    return gpios
+    
+    
 def settingsChanged():
     global hs
     print "Settings change detected"
 
     settings = hs.getTimerSettings()
-    status = applySettings(settings)
+    #status = applySettings(settings)
+    #status = applySettings2(settings)
+    status = updateZoneHandlers(settings)
+    
+    updateZoneHandlers(settings)
 
     hs.putStatusREST(status)
     hs.putSettingsREST(settings)    
@@ -156,7 +190,8 @@ if __name__ == '__main__':
     hs.addSettingsChangeObserver(lambda: settingsChanged())
     
     settings = hs.getSettingsREST()
-    applySettings(settings)
+    #applySettings(settings)
+    updateZoneHandlers(settings)
     
     while (True):
         time.sleep(1)
