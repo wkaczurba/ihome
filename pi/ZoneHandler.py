@@ -5,6 +5,7 @@ Created on Apr 1, 2017
 '''
 from timer.TimerHandler import TimerHandler
 from timer.TimerSetting import TimerSetting
+from gpios.GpioPin import GpioPin
 
 # TODO: Add logger, uncomment prints in ZoneHandler.gpioOutput and chnage them to output via logger.
 
@@ -13,8 +14,7 @@ class ZoneHandler(object):
     classdocs
     '''
 
-
-    def __init__(self, zoneSetting):
+    def __init__(self, zoneSetting, gpioPin):
         '''
         Constructor
         '''
@@ -25,29 +25,19 @@ class ZoneHandler(object):
         
         if not (zoneSetting.keys().__contains__("mode") and zoneSetting.keys().__contains__("automaticModeSettings")):
             raise ValueError("zoneSetting must contain keys 'mode' and 'automaticModeSettings'")
+        
+        if not isinstance(gpioPin, GpioPin):
+            raise TypeError("gpioPin must be of type GpioPin (from gpios.GpioPin module)")
 
         self.timerHandler = None # placeholder
-        self.gpioOn = lambda x: self.unAssignedGpioOn(x)
-        self.gpioOff = lambda x: self.unAssignedGpioOff(x)
+        self.gpioPin = gpioPin # placeholder for class that handles Gpio's Pin.
         self.applyZoneSettings()
 
-    def unAssignedGpioOn(self, what):
-        print "GpioOn unassigned"
-
-    def unAssignedGpioOff(self, what):
-        print "GpioOff unassigned"
+    def setGpioPin(self, gpioPin):
+        self.gpioPin = gpioPin
         
-    def setGpioOn(self, gpioOn):
-        self.gpioOn = gpioOn
-    
-    def getGpioOn(self):
-        return self.gpioOn
-    
-    def setGpioOff(self, gpioOff):
-        self.gpioOff = gpioOff
-    
-    def getGpioOff(self):
-        return self.gpioOff
+    def getGpioPin(self):
+        return self.gpioPin
     
     def applyZoneSettings(self):
         timerSettings = TimerSetting.createTimerSettings(self.zoneSetting['automaticModeSettings'])
@@ -72,39 +62,34 @@ class ZoneHandler(object):
         self.applyZoneSettings()
     
     def kill(self):
-        # TODO: unregister everything...
-        # remove observers
+        """Remove timer handler, remove observers. """            
+        # unregister everything... and remove observers
         self.timerHandler.removeAllObservers()
         self.timerHandler.stop()
         self.timerHandler = None    
         self.removeTimerHandler()
         self.gpioOutput(False)
-        """Remove timer handler, remove observers. """            
     
     # TODO: timerHandler argument is redundant in this case; remove it   
     def update(self, timerHandler):
         if (self.zoneSetting["mode"] == "MANUAL_ON"):
-            self.gpioOutput(True);
+            self.gpioOutput(True)
         elif (self.zoneSetting["mode"] == "MANUAL_OFF"):
-            self.gpioOutput(False);
+            self.gpioOutput(False)
         elif (self.zoneSetting["mode"] == "AUTOMATIC"):
-            # depends...
+            # in the automatic mode - output depends on time:
             if (self.timerHandler.checkIfFits()):
-                self.gpioOutput(True);
+                self.gpioOutput(True)
             else:
-                self.gpioOutput(False);
+                self.gpioOutput(False)
         else:
             raise ValueError("ZoneSetting['mode'] should be within MANUAL_ON, MANUAL_OFF, AUTOMATIC")
         pass
     
     def gpioOutput(self, on):
         if (on == True):
-            self.gpioOn(self)
-            #print str(self) + " : Setting GPIO on"
+            self.gpioPin.gpioOutputHigh()
         else:
-            self.gpioOff(self)
-            #print str(self) + " : Setting GPIO off"
-        # There must be another objecct setting GPIOs.
+            self.gpioPin.gpioOutputLow()
         
-    
     

@@ -8,7 +8,7 @@ import pprint
 class HeatingService:
     
     def __init__(self, device):
-        logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+        #logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
         self.logger = logging.getLogger('Heating.py')
         
         self.device = device

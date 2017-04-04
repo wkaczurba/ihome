@@ -23,4 +23,7 @@ def getGpioPin(pinNumber):
 
         
 
+def getInstantiatedGpioPins():
+    """In the order they where instantiated"""
+    return gpioPins
             
