@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 logger = logging.getLogger('app')
 
-from server.HeatingService import HeatingService
+from server.ServerSubscriber import ServerSubscriber
 from timer.TimerSetting import TimerSetting
 import time
 import pprint
@@ -41,7 +41,7 @@ def updateZoneHandlers(settings):
             zoneHandler.zoneId = i
             zoneHandlers.append(zoneHandler)
         else:
-            assert (False, "This state should have never been reached.")
+            raise AssertionError("This state should have never been reached.")
             
         # Update / set.
         #zoneHandler.setZoneSetting(zoneSetting)
@@ -71,7 +71,7 @@ def settingsChanged():
     #print "Settings change detected"
     logger.info("Settings change detected.")
 
-    settings = hs.getTimerSettings()
+    settings = hs.getSettings()
     status = updateZoneHandlers(settings)
     
     #updateZoneHandlers(settings)
@@ -81,13 +81,13 @@ def settingsChanged():
 
 if __name__ == '__main__':
     logger.info("running")
-    hs = HeatingService(1)
+    hs = ServerSubscriber(1)
     hs.addSettingsChangeObserver(lambda: settingsChanged())
     
-    settings = hs.getSettingsREST()
+    settings = hs.getSettingsAndNotifyREST()
     updateZoneHandlers(settings)
     
     while (True):
         time.sleep(1)
-        hs.getSettingsREST() # TODO: This should be getSettingsREST.
+        hs.getSettingsAndNotifyREST() # TODO: This should be getSettingsREST.
     

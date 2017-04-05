@@ -7,7 +7,9 @@ import java.util.List;
 public class HeatingReadback {
 	private List<Boolean> heatingOn;
 	
+	@SuppressWarnings("unused")
 	private HeatingReadback() {}
+	
 	public HeatingReadback(Boolean...heating) {
 		heatingOn = new ArrayList<>(Arrays.asList(heating));
 	}

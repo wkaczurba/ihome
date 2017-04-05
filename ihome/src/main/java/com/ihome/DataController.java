@@ -3,13 +3,8 @@ package com.ihome;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.Month;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.IntStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +23,7 @@ import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
 import com.ihome.node.ZoneTimerEntry;
 
+@SuppressWarnings("deprecation")
 @RestController
 public class DataController {
 //	@RequestMapping("/current")
@@ -43,6 +39,7 @@ public class DataController {
 		this.repo = repo;
 	}
 
+	// FIXME: Remove or fix; this one fails.
 	@RequestMapping("/current")
 	public CurrentStatus currentId(
 			@RequestParam(value="name", required=false) String name,
@@ -59,7 +56,7 @@ public class DataController {
 		return c;
 	}
 	
-	// TODO: Remove this one (it is only temporary)
+	// TODO: Move to separate "test-controller" if needed or remove this one
 	@RequestMapping("/testget")
 	public ZoneTimerEntry testgettime() {
 		ZoneTimerEntry z = new ZoneTimerEntry(
@@ -70,7 +67,7 @@ public class DataController {
 		return z;	
 	}
 	
-	// TODO: Reomove, Temp only	
+	// TODO: Move to separate "test-controller" if needed or remove this one	
 	@RequestMapping("/testget2")
 	public HeatingSettings testgetZones() {
 		ZoneTimerEntry z1a = new ZoneTimerEntry(
@@ -99,32 +96,25 @@ public class DataController {
 		ZoneSetting z2 = new ZoneSetting(ZoneMode.AUTOMATIC/*, false,*/, z2a, z2b);
 		ZoneSetting z3 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
 
+		// FIXME: The constructor below is liekely to throw an exception
 		HeatingSettings heating = new HeatingSettings(Arrays.asList(z1, z2, z3));
 		return heating;	
 	}	
 	
-	// TODO: Reomove, Temp only
+	// TODO: Move to separate "test-controller" if needed or remove this one
 	@RequestMapping("/testreadback")
 	public HeatingReadback testgetZonesReadback() {
 		HeatingReadback h = new HeatingReadback(Boolean.TRUE, Boolean.FALSE, Boolean.TRUE);
 		return h;
 	}
 	
-	// TODO: Reomove, Temp only	
+	// TODO: Move to separate "test-controller" if needed or remove this one
 	@RequestMapping(path="/currentput", method=RequestMethod.PUT)
 	public String putCurrentStatus(@RequestBody CurrentStatus cs) {
 		System.out.println("GOT Status:" + cs);
 		return "index";
 	}
 	
-	
-//	// TODO: Change so it uses /status/{device}
-//	@RequestMapping(path="/status/0", method=RequestMethod.PUT)
-//	public String putStatus(@RequestBody HeatingReadback rb) {
-//		System.out.println("GOT HeadingReadback:" + rb);
-//		return "index";
-//	}
-
 	@RequestMapping(path="/status/{device}", method=RequestMethod.PUT)
 	public String putStatus(@PathVariable int device, @RequestBody HeatingReadback rb) {
 		if (device != 1)
@@ -155,10 +145,10 @@ public class DataController {
 		return "index";
 	}
 
-/*
- TODO: To reenable the stuff below - will need to re-enable copying constructor in HeatingSettings.
- */ 	
-	// Generate random stuff
+	// TODO: Move to separate "test-controller" if needed or remove this one
+	/**
+	 *  Generates random stuff for testing of Pi-Java connection.
+	 */
 	HeatingSettings heatingSettingsLoopbackTest;
 	@RequestMapping(path="/test/heatingSeetingloopback", method=RequestMethod.GET)
 	public HeatingSettings heatingSettingsLoopbackTestGet() {
@@ -175,7 +165,12 @@ public class DataController {
 		return heatingSettingsLoopbackTest;
 	}
 
-	// Receive random stuff and check it matches.
+	// TODO: Move to separate "test-controller" if needed or remove this one	
+	/**
+	 *  Receive random stuff and check it matches.
+	 * @param fbSetting - feedback.
+	 * @return
+	 */
 	@RequestMapping(path="/test/heatingSeetingloopback", method=RequestMethod.PUT)
 	public String heatingSettingsLoopbackTestPut(@RequestBody HeatingSettings fbSetting) {
 		if (!fbSetting.equals(heatingSettingsLoopbackTest)) {

@@ -4,9 +4,9 @@ Created on Mar 7, 2017
 @author: WKaczurb
 '''
 import unittest
-import server.HeatingService
+import server.ServerSubscriber
 import logging
-from server.HeatingService import HeatingService
+from server.ServerSubscriber import ServerSubscriber
 
 class TestHeatingService(unittest.TestCase):
 	
@@ -15,7 +15,7 @@ class TestHeatingService(unittest.TestCase):
 		self.observerCalled = True
 	
 	def testNotifiers(self):
-		hs = HeatingService(1)
+		hs = ServerSubscriber(1)
 		hs.addSettingsChangeObserver(lambda: self.observerFunction())
 		hs.notifySettingsChangeObservers()
 		print locals()

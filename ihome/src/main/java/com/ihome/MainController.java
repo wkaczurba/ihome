@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.ihome.data.HeatingRepository;
-import com.ihome.data.ZoneTimerEntryRepository;
 import com.ihome.node.HeatingSettings;
 import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
@@ -35,7 +34,7 @@ public class MainController {
 //	private static final Logger logger = LoggerFactory.getLogger(ControllerConfig.class); 
 	
 	@Autowired
-	public MainController(HeatingRepository repo, ZoneTimerEntryRepository zteRepo) {
+	public MainController(HeatingRepository repo) {
 		this.repo = repo;
 		
 		if (repo.findAll().stream().anyMatch(x -> x.getId() == 1)) {			
@@ -235,7 +234,6 @@ public class MainController {
 			ZoneTimerEntry zte = ztes.stream().filter(x -> x.getId() == id).findAny().get(); // this may throw an error
 			System.out.println("Deleting...: " + zte);
 			
-			//zteRepo.delete(id);
 			if (!hs.getZones().get(zone).getAutomaticModeSettings().remove(zte)) {
 				throw new RuntimeException("Element not removed, even though it was found");
 			}

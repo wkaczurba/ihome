@@ -2,13 +2,10 @@ package com.ihome.node;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Month;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,10 +45,6 @@ public class ZoneTimerEntry implements Serializable {
 	@DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
 	private LocalTime endTime;
 	
-	// TODO: Follow this: http://stackoverflow.com/questions/2233943/persisting-a-set-of-days-of-the-week
-	// Try also this one: http://www.concretepage.com/hibernate/elementcollection_hibernate_annotation
-	// And: http://stackoverflow.com/questions/416208/jpa-map-collection-of-enums
-	
 	@ElementCollection(targetClass=DayOfWeek.class, fetch=FetchType.EAGER)
 	@JoinTable(name="tblDayOfWeek", joinColumns = @JoinColumn(name="zoneTimerEntry_id"))
 	@Column(name="days", nullable=false)
@@ -64,10 +57,10 @@ public class ZoneTimerEntry implements Serializable {
 	@Enumerated(EnumType.STRING)
 	private Set<Month> months = new HashSet<>();
 
+	@SuppressWarnings("unused")
 	private ZoneTimerEntry() {}
 
 	public static ZoneTimerEntry createRandom() {
-		// TODO Auto-generated method stub
 		Random rand = new Random();
 		
 		LocalTime startingTime = LocalTime.of(rand.nextInt(24), rand.nextInt(60));
@@ -118,7 +111,7 @@ public class ZoneTimerEntry implements Serializable {
 		this.months = months;
 	}
 	
-	// TODO: Remove copying constructor
+	// COPYING CONSTRUCTOR.
 	public ZoneTimerEntry(ZoneTimerEntry z) {
 		this(z.startingTime, z.endTime, new HashSet<>(z.days), new HashSet<>(z.months));
 	}
@@ -184,8 +177,6 @@ public class ZoneTimerEntry implements Serializable {
 	 */
 	@Override
 	public String toString() {
-//		return "ZoneTimerEntry [id=" + id + ", startingTime=" + startingTime + ", endTime=" + endTime + ", days=" + days
-//				+ ", months=" + months + "]";
 		return "ZoneTimerEntry [id=" + id 
 				+ ", time: " + startingTime 
 				+ "-" + endTime + (days.size() > 0 ? " on: " : "") 
@@ -193,8 +184,6 @@ public class ZoneTimerEntry implements Serializable {
 		        + (months.size() > 0 ? " months: " : "")
 				+ months.stream().map(s -> s.toString()).collect(Collectors.joining(","))
 				+ "]";
-		//+ ", months=" + months + "]";
-		
 	}
 
 	@Override
@@ -215,25 +204,10 @@ public class ZoneTimerEntry implements Serializable {
 		return id;
 	}
 
-
 	/**
 	 * @param id the id to set
 	 */
 	public void setId(long id) {
 		this.id = id;
 	}
-	
-
-//	public static void main(String[] args) {
-//		ZoneTimerEntry z = new ZoneTimerEntry(
-//				LocalTime.of(20, 0),
-//				LocalTime.of(20, 34),
-//				new HashSet<DayOfWeek>(Arrays.asList(DayOfWeek.FRIDAY, DayOfWeek.THURSDAY)),
-//				new HashSet<Month>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)));
-//		
-//		System.out.println("Example:" + z);
-//		
-//	}
-	
-	
 }
