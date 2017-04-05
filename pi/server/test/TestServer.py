@@ -16,9 +16,10 @@ class TestServer(unittest.TestCase):
     
     def testSystemLoopback(self):
         """Tests the REST Loopback with server"""
-        h = server.HeatingService.HeatingService()
+        verbose = True # False
+        h = server.HeatingService.HeatingService(1)
         h.logger.setLevel(logging.INFO)
-        self.assertTrue(h.loopbackTest(10, False))
+        self.assertTrue(h.loopbackTest(100, verbose))
         pass
 
 

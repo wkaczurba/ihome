@@ -56,10 +56,11 @@ public class HeatingSettings implements Serializable {
 //		this.zones.addAll(zones);
 		//this.zones = zones;
 	}
-	
-//	public HeatingSettings(HeatingSettings h) {
-//		h.getZones().stream().forEach(z -> zones.add(new ZoneSetting(z)) );
-//	}
+
+	// FIXNE: COPYING-CONSTRUCTOR Check if this should be allowed or not:
+	public HeatingSettings(HeatingSettings h) {
+		h.getZones().stream().forEach(z -> zones.add(new ZoneSetting(z)) );
+	}
 	
 	public static HeatingSettings createRandom() {
 		// TODO Auto-generated method stub

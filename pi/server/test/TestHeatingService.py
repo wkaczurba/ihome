@@ -11,11 +11,11 @@ from server.HeatingService import HeatingService
 class TestHeatingService(unittest.TestCase):
 	
 	def observerFunction(self):
-		print "variable called"
+		print "observerFunction called"
 		self.observerCalled = True
 	
 	def testNotifiers(self):
-		hs = HeatingService()
+		hs = HeatingService(1)
 		hs.addSettingsChangeObserver(lambda: self.observerFunction())
 		hs.notifySettingsChangeObservers()
 		print locals()

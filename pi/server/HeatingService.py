@@ -42,7 +42,7 @@ class HeatingService:
         if (self.settings != newSettings):
             self.settings = newSettings
             self.logger.info( "Settings changed: " + pprint.pformat(newSettings, 2) )
-            print "Settings changed" + pprint.pformat(newSettings, 2)
+            #print "Settings changed" + pprint.pformat(newSettings, 2)
             self.notifySettingsChangeObservers()
         
         # Apply:
@@ -102,7 +102,7 @@ class HeatingService:
             retrievedSettings = r.json()
     
             if (verbose):
-                print pprint.pformat(retrievedSettings, 2)
+                self.logger.info(pprint.pformat(retrievedSettings, 2))
 
             # Putting
             r = requests.put(server.getName() + "/test/heatingSeetingloopback", json=retrievedSettings)
@@ -111,7 +111,7 @@ class HeatingService:
                 self.logger.error('/settingsFeedback/0 did not work, http.status=%s' % (status))
                 return False
             i-=1
-        print "Passed" + str(count)
+        self.logger.info( "Passed" + str(count) )
         return True
 
 

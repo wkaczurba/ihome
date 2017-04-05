@@ -157,7 +157,7 @@ public class DataController {
 
 /*
  TODO: To reenable the stuff below - will need to re-enable copying constructor in HeatingSettings.
- * 	
+ */ 	
 	// Generate random stuff
 	HeatingSettings heatingSettingsLoopbackTest;
 	@RequestMapping(path="/test/heatingSeetingloopback", method=RequestMethod.GET)
@@ -187,6 +187,6 @@ public class DataController {
 		}
 		return "index";
 	}
-*/	
+
 	
 }

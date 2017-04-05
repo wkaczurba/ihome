@@ -1,4 +1,6 @@
 import logging
+#import traceback
+import sys
 '''
 Created on Apr 1, 2017
 
@@ -36,12 +38,14 @@ class GpioPin(object):
         self.gpioOutputMode()
         self.outputValue = 1
         self.logger.info ("Setting GPIO (%d) == 1" % (self.pinNumber))
+        #traceback.print_stack(file=sys.stdout)
         # TODO: gpioOuputHigh needs to be properly implemented
     
     def gpioOutputLow(self):
         self.gpioOutputMode()
         self.outputValue = 0
         self.logger.info ("Setting GPIO (%d) == 0" % (self.pinNumber))
+        #traceback.print_stack(file=sys.stdout)
         # TODO: gpioOuputLow needs to be properly implemented
     
     def gpioInput(self):

@@ -84,13 +84,13 @@ public class ZoneSetting implements Serializable {
 		this.heatingSettings = hs;
 	} */
 		
-//	// TODO: Remove copying constructor;
-//	public ZoneSetting(ZoneSetting zoneSetting) {
-//		mode = zoneSetting.mode;
-//		manualModeSetting = zoneSetting.manualModeSetting;
-//		
-//		zoneSetting.automaticModeSettings.stream().forEach(x -> automaticModeSettings.add(new ZoneTimerEntry(x)));
-//	}
+	// FIXNE: COPYING-CONSTRUCTOR Check if this should be allowed or not:
+	public ZoneSetting(ZoneSetting zoneSetting) {
+		mode = zoneSetting.mode;
+		//manualModeSetting = zoneSetting.manualModeSetting;
+		
+		zoneSetting.automaticModeSettings.stream().forEach(x -> automaticModeSettings.add(new ZoneTimerEntry(x)));
+	}
 
 		
 	/**

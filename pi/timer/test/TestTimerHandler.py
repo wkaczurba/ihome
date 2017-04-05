@@ -35,18 +35,18 @@ class Test(unittest.TestCase):
         #print "getRetVal called"
         return self.retVal
     
-    def observer(self):
-        print "Received update"
+    def observer(self, item):
+        print "Received update from: " + str(item)
         self.observerNotification += 1
         
-    def observerLambda1(self):
-        #print "observed"
+    def observerLambda1(self, item):
+        print "observed from: " + str(item)
         self.notified1 = True
          
     def testObserverNotifiation(self):
         self.notified1 = False
         timerHandler = TimerHandler()
-        timerHandler.addObserver(lambda: self.observerLambda1())
+        timerHandler.addObserver(lambda src: self.observerLambda1(src))
         timerHandler.notifyObservers()
         self.assertTrue(self.notified1, "Received no notification; observer was not called.")
         #print "testObserverNotifiation done"
@@ -60,7 +60,7 @@ class Test(unittest.TestCase):
         
         timerHandler = TimerHandler()
         timerHandler.threadCheckPeriod = 0.05
-        timerHandler.addObserver(lambda: self.observer())
+        timerHandler.addObserver(lambda src: self.observer(src))
         #timerHandler.notifyObservers()
         print "Starting..."
         timerHandler.start(condition=lambda:self.getRetVal())

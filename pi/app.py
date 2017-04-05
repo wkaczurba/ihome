@@ -30,14 +30,21 @@ def updateZoneHandlers(settings):
         if (i < len(zoneHandlers)):
             # Get existing timers:
             zoneHandler = zoneHandlers[i]
+            
+            # Update / set.
+            zoneHandler.setZoneSetting(zoneSetting)
         elif (i >= len(zoneHandlers)):
             # Create new:            
             gpioPin = GpioFactory.getGpioPin(i)
+            logger.info("updateZoneHandlers() -> creating zone " + str(i))
             zoneHandler = ZoneHandler(zoneSetting, gpioPin)
             zoneHandler.zoneId = i
+            zoneHandlers.append(zoneHandler)
+        else:
+            assert (False, "This state should have never been reached.")
             
         # Update / set.
-        zoneHandler.setZoneSetting(zoneSetting)
+        #zoneHandler.setZoneSetting(zoneSetting)
                           
     for i in range(len(zonesSettings), len(zoneHandlers)):
         # Delete...
@@ -61,7 +68,8 @@ def updateZoneHandlers(settings):
     
 def settingsChanged():
     global hs
-    print "Settings change detected"
+    #print "Settings change detected"
+    logger.info("Settings change detected.")
 
     settings = hs.getTimerSettings()
     status = updateZoneHandlers(settings)
