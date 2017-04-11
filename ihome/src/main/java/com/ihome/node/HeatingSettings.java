@@ -29,6 +29,24 @@ public class HeatingSettings implements Serializable {
 	@Column(name="HEATING_SETTINGS_ID")
 	private Long id;
 	
+	// TODO: Add the following deviceId that is unique.
+	@Column(unique=true)
+	private long deviceId; // device Id;	
+	
+	/**
+	 * @return the deviceId
+	 */
+	public long getDeviceId() {
+		return deviceId;
+	}
+
+	/**
+	 * @param deviceId the deviceId to set
+	 */
+	public void setDeviceId(long deviceId) {
+		this.deviceId = deviceId;
+	}
+
 	@OneToMany(cascade = CascadeType.ALL /*, fetch=FetchType.EAGER*/, orphanRemoval=true)
 	@JoinColumn(name="HEATING_SETTINGS_ID")
 	private List<ZoneSetting> zones = new ArrayList<>();
@@ -37,24 +55,28 @@ public class HeatingSettings implements Serializable {
 	private HeatingSettings() { 
 	}
 	
-	public HeatingSettings(ZoneSetting... zones) {
+	public HeatingSettings(long deviceId, ZoneSetting... zones) {
+		this.deviceId = deviceId;
 		for (ZoneSetting zone : zones) {
 			this.zones.add(zone);
 		}
 	}
 
 	// FIXME: Fix and test this function.
-	public HeatingSettings(List<ZoneSetting> zones) {
+	public HeatingSettings(long deviceId, List<ZoneSetting> zones) {
+		this.deviceId = deviceId;
 		throw new IllegalStateException("This funciton should not be called");
 	}
 
 	// COPYING-CONSTRUCTOR
-	public HeatingSettings(HeatingSettings h) {
+	public HeatingSettings(long deviceId, HeatingSettings h) {
+		this.deviceId = deviceId;
 		h.getZones().stream().forEach(z -> zones.add(new ZoneSetting(z)) );
 	}
 	
-	public static HeatingSettings createRandom() {
+	public static HeatingSettings createRandom(long deviceId) {
 		HeatingSettings hs = new HeatingSettings();
+		hs.setDeviceId(deviceId);
 		IntStream.range(0, (new Random()).nextInt(10) ).forEach(i -> hs.getZones().add( ZoneSetting.createRandom() ));
 		
 		return hs;
@@ -78,7 +100,7 @@ public class HeatingSettings implements Serializable {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("HeatingSettings id=\""+ id +"\":\n"); 
+		sb.append("HeatingSettings id=\""+ id +"\"; deviceId="+ deviceId +":\n"); 
 		if (zones == null) {
 			sb.append("zones == null\n");
 		} else {
@@ -113,6 +135,7 @@ public class HeatingSettings implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + (int) (deviceId ^ (deviceId >>> 32));
 		result = prime * result + ((zones == null) ? 0 : zones.hashCode());
 		return result;
 	}
@@ -129,6 +152,8 @@ public class HeatingSettings implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		HeatingSettings other = (HeatingSettings) obj;
+		if (deviceId != other.deviceId)
+			return false;
 		if (zones == null) {
 			if (other.zones != null)
 				return false;

@@ -7,7 +7,7 @@ public class HeatingSettingsTest {
 
 	@Test
 	public void toStringTest() {
-		HeatingSettings hs = HeatingSettings.createRandom();
+		HeatingSettings hs = HeatingSettings.createRandom(0);
 		System.out.println( hs );
 	}
 	

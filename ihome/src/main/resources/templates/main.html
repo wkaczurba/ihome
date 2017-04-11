@@ -11,7 +11,7 @@
 
 <h3>Devices:</h3>
 <ul th:each="hs : ${heatingSettingsList}">
-  <li th:inline="text"><a th:href="@{/devices/{dev}(dev=${hs.id})}">Device: [[${hs.id}]], zones: [[${hs.zones == null? 0 : hs.zones.size()}]]</a></li>
+  <li th:inline="text"><a th:href="@{/devices/{dev}(dev=${hs.deviceId})}">Device: [[${hs.deviceId}]], zones: [[${hs.zones == null? 0 : hs.zones.size()}]]</a></li>
   <!--  <li th:text="${hs}"> -->
 </ul>
 

@@ -36,12 +36,19 @@ public class IhomeApplicationTests {
 	@Test
 	@Transactional 
 	public void hibernateTest() {
+		int deviceId = 0;
 		// create entries first.
+		HeatingSettings hs = repo.getOneByDeviceId(deviceId);
 		
-		HeatingSettings hs = new HeatingSettings(
-				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
-				new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));		
+		if (hs == null) {
+			System.out.println("Device ID==1 does not exist; creating a new one...");
+			hs = new HeatingSettings(deviceId,
+					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
+					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
+					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));		
+		} else {
+			System.out.println("Device ID==1 exists; using retrieved one...");
+		}
 		
 		repo.save(hs);		
 		Assert.assertEquals(3, hs.getZones().size());
@@ -49,12 +56,15 @@ public class IhomeApplicationTests {
 		System.out.println(hs);
 		HeatingSettings rb = repo.getOne(hs.getId());
 		
-		Assert.assertEquals(+3, rb.getZones().size());
+		Assert.assertEquals(3, rb.getZones().size());
 		
 		ZoneTimerEntry zte = ZoneTimerEntry.create("17:00", "23:00", "Friday", "December, January, February"); 
 		rb.getZones().get(0).getAutomaticModeSettings().add(zte);	
 		
 		rb = repo.getOne(hs.getId());
+		HeatingSettings rb2 = repo.getOneByDeviceId(deviceId);
+		Assert.assertEquals(rb,  rb2);
+		Assert.assertEquals(rb, repo.findOneByDeviceId(deviceId));
 
 		Assert.assertEquals(3, rb.getZones().size());
 		System.out.println("Last readback: " + rb);

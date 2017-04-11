@@ -14,10 +14,11 @@ spring:
     hibernate:
       ddl-auto: "create-drop"
       #ddl-auto: "create"
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
+#    properties:
+#      hibernate:
+#        show_sql: true
+#        format_sql: true
+
 #  hibernateProperties:
 #    current_session_context_class: thread # this is for test only.
 

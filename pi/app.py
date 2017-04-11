@@ -65,29 +65,48 @@ def updateZoneHandlers(settings):
         values.append(pin.getValue()) # NOT IDEAL...   
     return values
     
-    
+status = []
+settings = []    
+
 def settingsChanged():
     global hs
+    global settings
+    global status
+    
     #print "Settings change detected"
     logger.info("Settings change detected.")
 
     settings = hs.getSettings()
     status = updateZoneHandlers(settings)
+    #putStatusAndSettings(status, settings)
+    putStatusAndSettings()
     
+    
+#def putStatusAndSettings(status, settings):
+def putStatusAndSettings():
+    global settings
+    global status
+    
+    logger.debug("putting statuses: " + str(status))    
     #updateZoneHandlers(settings)
     hs.putStatusREST(status)
     hs.putSettingsREST(settings)    
     
+# TODO: Create updater.
 
 if __name__ == '__main__':
     logger.info("running")
-    hs = ServerSubscriber(1)
+    hs = ServerSubscriber(device=0)
     hs.addSettingsChangeObserver(lambda: settingsChanged())
     
+    # HERE:
     settings = hs.getSettingsAndNotifyREST()
-    updateZoneHandlers(settings)
+    status = updateZoneHandlers(settings)  
+    putStatusAndSettings()
     
     while (True):
         time.sleep(1)
+        # HERE: Partial
         hs.getSettingsAndNotifyREST() # TODO: This should be getSettingsREST.
+        putStatusAndSettings() # Update every so often about the reads.
     

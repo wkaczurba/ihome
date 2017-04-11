@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.ihome.data.HeatingReadbackRepository;
 import com.ihome.data.HeatingRepository;
 import com.ihome.node.HeatingSettings;
 import com.ihome.node.ZoneMode;
@@ -31,13 +32,15 @@ import com.ihome.node.ZoneTimerEntry;
 public class MainController {
 	
 	HeatingRepository repo;
+	HeatingReadbackRepository readbackRepo;
 //	private static final Logger logger = LoggerFactory.getLogger(ControllerConfig.class); 
 	
 	@Autowired
-	public MainController(HeatingRepository repo) {
+	public MainController(HeatingRepository repo, HeatingReadbackRepository readbackRepo) {
 		this.repo = repo;
+		this.readbackRepo = readbackRepo;
 		
-		if (repo.findAll().stream().anyMatch(x -> x.getId() == 1)) {			
+		if (repo.findAll().stream().anyMatch(x -> x.getDeviceId() == 0)) {			
 			return;
 		} else {
 			//repo.deleteAll();
@@ -64,7 +67,7 @@ public class MainController {
 	
 	@RequestMapping("/createrandom")
 	public ModelAndView createRandom() {
-		HeatingSettings hs = HeatingSettings.createRandom();
+		HeatingSettings hs = HeatingSettings.createRandom(0);
 		repo.save(hs);
 		
 		ModelAndView modelAndView = new ModelAndView("createrandom");
@@ -82,10 +85,11 @@ public class MainController {
 		zs2.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		//HeatingSettings hs = new HeatingSettings(new ArrayList<>(Arrays.asList(zs0, zs1, zs2))); // TODO: Remove.
 
-		HeatingSettings hs = new HeatingSettings();
-		hs.addZone(zs0);
-		hs.addZone(zs1);
-		hs.addZone(zs2);
+		HeatingSettings hs = new HeatingSettings(0, zs0, zs1, zs2);
+//		hs.setDeviceId(0);
+//		hs.addZone(zs0);
+//		hs.addZone(zs1);
+//		hs.addZone(zs2);
 		
 		repo.save(hs);		
 
@@ -107,10 +111,10 @@ public class MainController {
 		zs2.setAutomaticModeSettings(new HashSet<>(Arrays.asList(new ZoneTimerEntry(LocalTime.of(7, 00), LocalTime.of(5, 0), new HashSet<>(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.TUESDAY)), new HashSet<>(Arrays.asList(Month.DECEMBER, Month.JANUARY, Month.FEBRUARY)) ))));
 		//HeatingSettings hs = new HeatingSettings(new ArrayList<>(Arrays.asList(zs0, zs1, zs2))); // TODO: Remove.
 
-		HeatingSettings hs = new HeatingSettings();
-		hs.addZone(zs0);
-		hs.addZone(zs1);
-		hs.addZone(zs2);
+		HeatingSettings hs = new HeatingSettings(0, zs0, zs1, zs2);
+//		hs.addZone(zs0);
+//		hs.addZone(zs1);
+//		hs.addZone(zs2);
 		
 		repo.save(hs);		
 		if (hs.getZones().size() != 3) {
@@ -118,7 +122,9 @@ public class MainController {
 		}
 		
 		System.out.println(hs);
-		HeatingSettings rb = repo.getOne(hs.getId());
+		//HeatingSettings rb = repo.getOne(hs.getId());
+		HeatingSettings rb = repo.getOneByDeviceId(hs.getDeviceId());
+		
 		
 		if (rb.getZones().size() != 3) {
 			throw new RuntimeException("size != 3");
@@ -152,9 +158,10 @@ public class MainController {
 	
 	@RequestMapping("/devices/{device}")
 	public ModelAndView device(@PathVariable long device) {
-		HeatingSettings heatingSettings = repo.findOne(device); // TODO: Change to handle multiple devices
-		//HeatingSettings heatingSettings = repo.getOne(device); // TODO: Change to handle multiple devices
-		heatingSettings = repo.getOne(device); // TODO: Change to handle multiple devices
+		//HeatingSettings heatingSettings = repo.findOne(device);
+		HeatingSettings heatingSettings = repo.findOneByDeviceId(device);		
+		//HeatingSettings heatingSettings = repo.getOne(device);
+//		heatingSettings = repo.getOne(device);
 	
 		ModelAndView modelAndView = new ModelAndView("devices");
 		modelAndView.addObject("device", device);
@@ -165,7 +172,7 @@ public class MainController {
 	
 	@RequestMapping(path="/switchzone/automatic/{device}/{zone}", method=RequestMethod.GET)
 	public String switchZoneToAutomatic(@PathVariable long device, @PathVariable int zone) {
-		HeatingSettings hs = repo.findOne(device);
+		HeatingSettings hs = repo.findOneByDeviceId(device);
 		hs.getZones().get(zone).setMode(ZoneMode.AUTOMATIC);
 		repo.save(hs);
 		
@@ -174,7 +181,7 @@ public class MainController {
 
 	@RequestMapping(path="/switchzone/manualOn/{device}/{zone}", method=RequestMethod.GET)
 	public String switchZoneToManualOn(@PathVariable long device, @PathVariable int zone) {
-		HeatingSettings hs = repo.findOne(device);
+		HeatingSettings hs = repo.findOneByDeviceId(device);
 		hs.getZones().get(zone).setMode(ZoneMode.MANUAL_ON);
 		repo.save(hs);
 		
@@ -183,7 +190,7 @@ public class MainController {
 
 	@RequestMapping(path="/switchzone/manualOff/{device}/{zone}", method=RequestMethod.GET)
 	public String switchZoneToManualOff(@PathVariable long device, @PathVariable int zone) {
-		HeatingSettings hs = repo.findOne(device);
+		HeatingSettings hs = repo.findOneByDeviceId(device);
 		hs.getZones().get(zone).setMode(ZoneMode.MANUAL_OFF);
 		repo.save(hs);
 		
@@ -227,7 +234,7 @@ public class MainController {
 	@RequestMapping(path="/deletezonetimerentry/{device}/{zone}/{id}", method=RequestMethod.GET)
 	@Transactional
 	public String deleteZoneTimerEntry(@PathVariable long device, @PathVariable int zone, @PathVariable long id) {
-		HeatingSettings hs = repo.findOne(device);
+		HeatingSettings hs = repo.findOneByDeviceId(device);
 		Set<ZoneTimerEntry> ztes = hs.getZones().get(zone).getAutomaticModeSettings();
 		
 		try {
@@ -269,8 +276,8 @@ public class MainController {
 		//ModelAndView modelAndView = new ModelAndView("addzonetimerentry");
 		
 		System.out.println("device: " + device);
-		repo.findAll(); // it fails without this one.
-		HeatingSettings fromDb = repo.getOne(device);
+//		repo.findAll(); // it fails without this one.
+		HeatingSettings fromDb = repo.findOneByDeviceId(device);
 		
 		/*if (!heatingSettings.equals(fromDb)) {
 			System.out.println("Session and DB values are different:");
@@ -296,7 +303,7 @@ public class MainController {
 		fromDb.getZones().get(zone).getAutomaticModeSettings().add(z);
 		repo.save(fromDb);
 		
-		fromDb = repo.getOne(device);
+		fromDb = repo.getOneByDeviceId(device);
 		System.out.println("fromDb:" + fromDb);
 
 		/*

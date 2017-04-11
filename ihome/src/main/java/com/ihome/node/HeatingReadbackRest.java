@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HeatingReadback {
+public class HeatingReadbackRest {
 	private List<Boolean> heatingOn;
 	
 	@SuppressWarnings("unused")
-	private HeatingReadback() {}
+	private HeatingReadbackRest() {}
 	
-	public HeatingReadback(Boolean...heating) {
+	public HeatingReadbackRest(Boolean...heating) {
 		heatingOn = new ArrayList<>(Arrays.asList(heating));
 	}
 
@@ -50,7 +50,7 @@ public class HeatingReadback {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		HeatingReadback other = (HeatingReadback) obj;
+		HeatingReadbackRest other = (HeatingReadbackRest) obj;
 		if (heatingOn == null) {
 			if (other.heatingOn != null)
 				return false;

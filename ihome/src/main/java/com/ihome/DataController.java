@@ -3,6 +3,8 @@ package com.ihome;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.Month;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import org.slf4j.Logger;
@@ -15,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ihome.data.HeatingReadbackRepository;
 import com.ihome.data.HeatingRepository;
 import com.ihome.node.CurrentStatus;
 import com.ihome.node.HeatingSettings;
-import com.ihome.node.HeatingReadback;
+import com.ihome.node.HeatingReadbackDb;
+import com.ihome.node.HeatingReadbackRest;
 import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
 import com.ihome.node.ZoneTimerEntry;
@@ -33,10 +37,12 @@ public class DataController {
 	
 	Logger logger = LoggerFactory.getLogger(DataController.class);
 	HeatingRepository repo;
+	HeatingReadbackRepository readbackRepo;
 	
 	@Autowired
-	public DataController(HeatingRepository repo) {
+	public DataController(HeatingRepository repo, HeatingReadbackRepository readbackRepo) {
 		this.repo = repo;
+		this.readbackRepo = readbackRepo;
 	}
 
 	// FIXME: Remove or fix; this one fails.
@@ -97,14 +103,14 @@ public class DataController {
 		ZoneSetting z3 = new ZoneSetting(ZoneMode.MANUAL_ON/*, true*/);
 
 		// FIXME: The constructor below is liekely to throw an exception
-		HeatingSettings heating = new HeatingSettings(Arrays.asList(z1, z2, z3));
+		HeatingSettings heating = new HeatingSettings(0, Arrays.asList(z1, z2, z3));
 		return heating;	
 	}	
 	
 	// TODO: Move to separate "test-controller" if needed or remove this one
 	@RequestMapping("/testreadback")
-	public HeatingReadback testgetZonesReadback() {
-		HeatingReadback h = new HeatingReadback(Boolean.TRUE, Boolean.FALSE, Boolean.TRUE);
+	public HeatingReadbackRest testgetZonesReadback() {
+		HeatingReadbackRest h = new HeatingReadbackRest(Boolean.TRUE, Boolean.FALSE, Boolean.TRUE);
 		return h;
 	}
 	
@@ -115,35 +121,77 @@ public class DataController {
 		return "index";
 	}
 	
-	@RequestMapping(path="/status/{device}", method=RequestMethod.PUT)
-	public String putStatus(@PathVariable int device, @RequestBody HeatingReadback rb) {
-		if (device != 1)
-			throw new IllegalArgumentException("Unknown device");
-		
-		System.out.println("GOT HeadingReadback:" + rb);
-		return "index";
-	}
-
 	@RequestMapping(path="/settings/{device}", method=RequestMethod.GET)
 	public HeatingSettings getSettings(@PathVariable long device) {
-		if (device != 1)
+		if (device != 0)
 			throw new IllegalArgumentException("Unknown device");
 		
 		//return repo.getOne(device);
 		//return repo.getSettings(device);
-		return repo.findOne(device);
+		//return repo.findOne(device);
+		return repo.findOneByDeviceId(device);
+	}
+
+	// TODO: Things: Add gpio for each + timestamp when msg was received (interval every 10 seconds?)
+	/**
+	 * Takes HeatingReadbackRest as an input and coverts it to DB-format (HeatingReadbackDb). 
+	 * 
+	 * If entry does not exist in the db - it creates a new one.
+	 * 
+	 * @param device
+	 * @param rb
+	 * @return
+	 */
+	@RequestMapping(path="/status/{device}", method=RequestMethod.PUT)
+	public String putStatus(@PathVariable long device, @RequestBody HeatingReadbackRest restRb) {
+		if (device != 0)
+			throw new IllegalArgumentException("Unknown device");
+		
+		System.out.println("GOT HeadingReadback:" + restRb);
+
+		HeatingReadbackDb dbRb;
+		dbRb = readbackRepo.getOneByDeviceId(device);
+		if (dbRb == null) {
+			dbRb = new HeatingReadbackDb(device);
+		}
+		dbRb.setHeatingOn(restRb);
+		dbRb.setTimeStamp(OffsetDateTime.now());
+		readbackRepo.save(dbRb);
+			
+		return "index";
 	}
 	
+	/* Reads back latest status */
+	@RequestMapping(path="/status/{device}", method=RequestMethod.GET)
+	public HeatingReadbackDb getStatus(@PathVariable long device) {
+		HeatingReadbackDb dbRb;
+		
+		dbRb = readbackRepo.getOneByDeviceId(device);
+		return dbRb;
+	}
+	
+//HERE:
 	@RequestMapping(path="/settingsFeedback/{device}", method=RequestMethod.PUT)
 	public String putFeedbackSettings(@PathVariable int device, @RequestBody HeatingSettings fbSettings) {
-		if (device != 1)
+		if (device != 0)
 			throw new IllegalArgumentException("Unknown device");
 	
 		// TODO: Save to repo/handle it:
+		// TODO: Consider checking if the feedback is correct.
 		System.out.println("fbSettings: " + fbSettings);
 
 		return "index";
 	}
+	
+	// TODO: Remove this one; only for tests;
+	@RequestMapping(path="/test/offset", method=RequestMethod.GET)
+	public OffsetDateTime offsetDateTime() {
+//		ZonedDateTime zdt = ZonedDateTime.from(OffsetDateTime.now());
+//		//zdt.toOffsetDateTime()
+		
+		return ZonedDateTime.now().toOffsetDateTime();
+	}
+	
 
 	// TODO: Move to separate "test-controller" if needed or remove this one
 	/**
@@ -152,8 +200,8 @@ public class DataController {
 	HeatingSettings heatingSettingsLoopbackTest;
 	@RequestMapping(path="/test/heatingSeetingloopback", method=RequestMethod.GET)
 	public HeatingSettings heatingSettingsLoopbackTestGet() {
-		heatingSettingsLoopbackTest = HeatingSettings.createRandom();
-		HeatingSettings h2 = new HeatingSettings(heatingSettingsLoopbackTest);
+		heatingSettingsLoopbackTest = HeatingSettings.createRandom(0);
+		HeatingSettings h2 = new HeatingSettings(0, heatingSettingsLoopbackTest);
 		
 		if (!h2.equals(heatingSettingsLoopbackTest)) {
 			System.out.println("heatingSettingsLoopbackTest = " + heatingSettingsLoopbackTest);
