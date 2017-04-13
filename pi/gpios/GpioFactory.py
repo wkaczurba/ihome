@@ -6,9 +6,19 @@ This module mimics singleton behavior
 
 @author: WKaczurb
 '''
+import platform
+
 from gpios.GpioPin import GpioPin
 
 gpioPins = []
+
+# For setting mode:
+if ("raspberrypi" in platform.uname()):
+    import RPi.GPIO as GPIO
+else:
+    import RPiDummy.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
+        
 
 def getGpioPin(pinNumber): 
     try:
