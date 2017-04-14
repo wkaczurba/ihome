@@ -11,8 +11,8 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MySQL5Dialect
-    hibernate:
-      ddl-auto: "create-drop"
+#    hibernate:
+#      ddl-auto: "create-drop"
       #ddl-auto: "create"
 #    properties:
 #      hibernate:

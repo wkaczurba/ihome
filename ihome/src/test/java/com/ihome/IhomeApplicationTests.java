@@ -19,7 +19,9 @@ import com.ihome.node.ZoneMode;
 import com.ihome.node.ZoneSetting;
 import com.ihome.node.ZoneTimerEntry;
 
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -33,13 +35,12 @@ public class IhomeApplicationTests {
 		
 	}
 	
-	@Test
-	@Transactional 
-	public void hibernateTest() {
-		int deviceId = 0;
-		// create entries first.
+	int deviceId = 232;
+	@Before
+	@Transactional
+	public void setup() {
 		HeatingSettings hs = repo.getOneByDeviceId(deviceId);
-		
+
 		if (hs == null) {
 			System.out.println("Device ID==1 does not exist; creating a new one...");
 			hs = new HeatingSettings(deviceId,
@@ -49,6 +50,33 @@ public class IhomeApplicationTests {
 		} else {
 			System.out.println("Device ID==1 exists; using retrieved one...");
 		}
+		
+		repo.save(hs);
+	}
+	
+	@After
+	@Transactional
+	public void delete() {
+		HeatingSettings hs = repo.getOneByDeviceId(deviceId);
+		repo.delete(hs);
+	}
+	
+	@Test
+	@Transactional 
+	public void hibernateTest() {
+		int deviceId = 0;
+		// create entries first.
+		HeatingSettings hs = repo.getOneByDeviceId(deviceId);
+		
+//		if (hs == null) {
+//			System.out.println("Device ID==1 does not exist; creating a new one...");
+//			hs = new HeatingSettings(deviceId,
+//					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")),
+//					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("17:00", "23:33", "monday, tuesday", "january,february")),
+//					new ZoneSetting(ZoneMode.MANUAL_ON, ZoneTimerEntry.create("7:00", "5:00", "monday, tuesday", "january,february")));		
+//		} else {
+//			System.out.println("Device ID==1 exists; using retrieved one...");
+//		}
 		
 		repo.save(hs);		
 		Assert.assertEquals(3, hs.getZones().size());
