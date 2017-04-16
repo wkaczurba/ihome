@@ -22,6 +22,18 @@ zoneHandlers = []
 def updateZoneHandlers(settings):
     global zoneHandlers
     
+    # if settings contains no zones -> 
+    #    -> it means no data is available;
+    
+    if (isinstance(settings, dict.__class__)):
+        raise TypeError("settings must be of dict type")
+        
+    if (settings=={}):
+        # TODO:     
+        logger.error("TODO, line 33 app.py: Abort all GPIOs -> no data (e.g. due to no connection)")
+        logger.error("TODO, line 34 app.py: If any zones exist -> inform that no new data is available.")
+        return
+            
     zonesSettings = settings['zones']
     for i in range(0, len(zonesSettings)):
         zoneSetting = zonesSettings[i]
