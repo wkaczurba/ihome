@@ -8,7 +8,7 @@ import logging
 from timer.TimerHandler import TimerHandler
 from timer.TimerSetting import TimerSetting
 from gpios.GpioPin import GpioPin
-from nt import abort
+#from nt import abort
 
 # TODO: Add logger, uncomment prints in ZoneHandler.gpioOutput and chnage them to output via logger.
 
