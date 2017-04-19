@@ -3,9 +3,12 @@ Created on Apr 1, 2017
 
 @author: WKaczurb
 '''
+import time
+import logging
 from timer.TimerHandler import TimerHandler
 from timer.TimerSetting import TimerSetting
 from gpios.GpioPin import GpioPin
+from nt import abort
 
 # TODO: Add logger, uncomment prints in ZoneHandler.gpioOutput and chnage them to output via logger.
 
@@ -18,17 +21,19 @@ class ZoneHandler(object):
         '''
         Constructor
         '''
+        #self.noDataTimeoutTime = 30 # 30 seconds acceptable when no data is received.  
+        self.logger = logging.getLogger('ZoneHandler')
         
-        self.zoneSetting = zoneSetting
-        if not isinstance(zoneSetting, dict):
-            raise TypeError("zoneSetting must be of dict type")
-        
-        if not (zoneSetting.keys().__contains__("mode") and zoneSetting.keys().__contains__("automaticModeSettings")):
+        if (not ZoneHandler.isValidZoneSettings(zoneSetting)): 
+            self.zoneSetting = None
             raise ValueError("zoneSetting must contain keys 'mode' and 'automaticModeSettings'")
-        
+        else:
+            self.zoneSettingTimestamp = time.time() # timestamp when last time setting was received.
+            self.zoneSetting = zoneSetting
+                
         if not isinstance(gpioPin, GpioPin):
             raise TypeError("gpioPin must be of type GpioPin (from gpios.GpioPin module)")
-
+        
         self.timerHandler = None # placeholder
         self.gpioPin = gpioPin # placeholder for class that handles Gpio's Pin.
         self.applyZoneSettings()
@@ -38,8 +43,28 @@ class ZoneHandler(object):
         
     def getGpioPin(self):
         return self.gpioPin
-    
+
+    # TODO: This funciton should be moved to a seprate class ZoneSetting or similar.
+    @staticmethod
+    def isValidZoneSettings(z):
+        if not isinstance(z, dict):
+            return False 
+        
+        if not (z.keys().__contains__("mode") and z.keys().__contains__("automaticModeSettings")):
+            raise ValueError("zoneSetting must contain keys 'mode' and 'automaticModeSettings'")
+        
+            
+        if not (z.keys().__contains__("mode") and z.keys().__contains__("automaticModeSettings")):
+            return False
+            #raise ValueError("zoneSetting must contain keys 'mode' and 'automaticModeSettings'")
+        return True
+        
     def applyZoneSettings(self):
+        if (self.zoneSetting == None):
+            assert (self.timerHandler != None) # timerHandler should be defined here.
+            self.timerHandler.notifyObservers()
+            return
+            
         timerSettings = TimerSetting.createTimerSettings(self.zoneSetting['automaticModeSettings'])
         if (self.timerHandler == None):
             self.timerHandler = TimerHandler()
@@ -58,7 +83,12 @@ class ZoneHandler(object):
         return self.zoneSetting
     
     def setZoneSetting(self, zoneSetting):
-        self.zoneSetting = zoneSetting
+        if (ZoneHandler.isValidZoneSettings(zoneSetting)):
+            self.zoneSetting = zoneSetting
+            self.zoneSettingTimestamp = time.time()
+        else:
+            self.zoneSetting = None
+            
         self.applyZoneSettings()
     
     def kill(self):
@@ -71,7 +101,12 @@ class ZoneHandler(object):
         self.gpioOutput(False)
     
     # TODO: timerHandler argument is redundant in this case; remove it   
-    def update(self, timerHandler):
+    def update(self, timerHandler):       
+        if (self.zoneSetting == None):
+            self.logger.warn("No valid data received - switching off zone.")
+            self.gpioOutput(False)
+            return
+        
         if (self.zoneSetting["mode"] == "MANUAL_ON"):
             self.gpioOutput(True)
         elif (self.zoneSetting["mode"] == "MANUAL_OFF"):

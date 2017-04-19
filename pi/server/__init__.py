@@ -26,22 +26,22 @@ serverReachable = "UNKNOWN"
 #
 
 def onConnected():
-    pass
+    logger.info("Server reachable; serverReachable = True")
+    #print "onConnected() function call to be added here" # TODO
     
 def onDisconnected():
-    pass
+    logger.warn("Server unreachable; serverReachable = False")
+    #print "onDisconnected() function call to be added here" #TODO
 
 def setServerReachable(newStatus):
     global serverReachable
     if (serverReachable != newStatus and newStatus == True):
         serverReachable = newStatus
-        logger.info("Server reachable; serverReachable = True")
-        print "onConnected() function call to be added here" # TODO
+        onConnected()
         
     if (serverReachable != newStatus and newStatus == False):
         serverReachable = newStatus
-        logger.warn("Server unreachable; serverReachable = False")
-        print "onDisconnected() function call to be added here" #TODO
+        onDisconnected()
 
 def getServerReachable():
     return serverReachable

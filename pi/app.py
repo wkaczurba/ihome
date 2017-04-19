@@ -28,15 +28,24 @@ def updateZoneHandlers(settings):
     if (isinstance(settings, dict.__class__)):
         raise TypeError("settings must be of dict type")
         
+    zonesSettingsValid = False
     if (settings=={}):
-        # TODO:     
         logger.error("TODO, line 33 app.py: Abort all GPIOs -> no data (e.g. due to no connection)")
         logger.error("TODO, line 34 app.py: If any zones exist -> inform that no new data is available.")
-        return
-            
-    zonesSettings = settings['zones']
+        logger.error("TODO, line 35 app.py: zonesSettingsValid = False")
+        
+        # Stuffing with dummy data to hack the for-loop.
+        zonesSettings = [0,] * len(zoneHandlers) 
+        zonesSettingsValid = False
+    else:
+        zonesSettings = settings['zones']
+        zonesSettingsValid = True
+        
     for i in range(0, len(zonesSettings)):
-        zoneSetting = zonesSettings[i]
+        if (zonesSettingsValid):
+            zoneSetting = zonesSettings[i]
+        else:
+            zoneSetting = []
         
         # Get:
         if (i < len(zoneHandlers)):
@@ -57,14 +66,15 @@ def updateZoneHandlers(settings):
             
         # Update / set.
         #zoneHandler.setZoneSetting(zoneSetting)
-                          
-    for i in range(len(zonesSettings), len(zoneHandlers)):
-        # Delete...
-        logger.error("updateZoneHandlers - deleting zones; should never get here!")
-        #raise AssertionError("This one should never get here!")
-        print "deleting timer for zone: %d" % (i)
-        zoneHandlers[i].kill()
-        zoneHandlers[i] = None
+              
+    if (zonesSettingsValid):            
+        for i in range(len(zonesSettings), len(zoneHandlers)):
+            # Delete...
+            logger.error("updateZoneHandlers - deleting zones; should never get here!")
+            #raise AssertionError("This one should never get here!")
+            print "deleting timer for zone: %d" % (i)
+            zoneHandlers[i].kill()
+            zoneHandlers[i] = None
         
     # Remove from the list Nones
     zoneHandlers = zoneHandlers[0:len(zonesSettings)]
