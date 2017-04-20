@@ -9,11 +9,7 @@ logging.basicConfig(format='%(asctime)s [%(name)s]: %(message)s', datefmt='%m/%d
 logger = logging.getLogger('app')
 
 from server.ServerSubscriber import ServerSubscriber
-from timer.TimerSetting import TimerSetting
 import time
-import pprint
-import datetime
-from timer.TimerHandler import TimerHandler
 from ZoneHandler import ZoneHandler
 from gpios import GpioFactory
 
@@ -25,10 +21,6 @@ lastValidSettings = None
 lastTimeoutSettings = None
 status = []
 settings = None # Normally => []    
-
-
-# FIXME: timestamps are incorrectly dealt with:
-#        - update        
 
 def createZoneHandlers(settings):
     global zoneHandlers
@@ -62,38 +54,31 @@ def deleteNonExistingZoneHandlers(settings):
     
     zoneHandlers = zoneHandlers[0:len(zonesSettings)] # Remove from the list Nones  
 
-prevSettings = None
+updateZonesPrevSettings = None
 def updateZones(settings):
     global zoneHandlers
-    global prevSettings
+    global updateZonesPrevSettings
     
     zonesSettings = settings['zones']    
 
     assert (len(zoneHandlers) > 0)
     assert (len(zonesSettings) == len(zoneHandlers)) # Suggests that zoneHanlders or its number has changed on the fly...
     
-    if (prevSettings != settings):
+    if (updateZonesPrevSettings != settings):
         for i in range(0, len(zonesSettings)):
-            zoneSetting = zonesSettings[i]
-            
-            # Get existing timers:
-            zoneHandler = zoneHandlers[i]
-                
-            # Update / set.
-            zoneHandler.setZoneSetting(zoneSetting)
-        prevSettings = settings
+            # Update each zone with new zoneSettings
+            zoneHandlers[i].setZoneSetting(zonesSettings[i])
+        updateZonesPrevSettings = settings
         
 def updateZonesWithEmpty():
     global zoneHandlers
+    global updateZonesPrevSettings
     
     assert (len(zoneHandlers) > 0)
-    
     for i in range(0, len(zoneHandlers)):
-        # Get existing timers:
-        zoneHandler = zoneHandlers[i]
-            
-        # Update / set.
-        zoneHandler.setZoneSetting([])
+        # Update i-th zoneHandler with empty data:
+        zoneHandlers[i].setZoneSetting([])
+    updateZonesPrevSettings = None
         
 def getGpioPinValues():
     pins = GpioFactory.getInstantiatedGpioPins()
@@ -113,7 +98,7 @@ def isTimeout():
     
     return (time.time() - zoneHandlersUpdateTimestamp >= TIMEOUT)
 
-# TODO: Remove the one below with a state machine:
+
 def updateZoneHandlers(settings):
     global zoneHandlers
     global zonesCreated
@@ -129,13 +114,12 @@ def updateZoneHandlers(settings):
         
     zonesSettingsValid = False
     if (settings=={}):
-#         logger.error("zonesSettingsValid = False")
-        # Stuffing with dummy data to hack the for-loop.
         zonesSettingsValid = False
     else:
         zonesSettingsValid = True
         lastValidSettings = settings
         
+    # TODO: Remove the one below with a state machine:
     if (not zonesCreated):
         if (zonesSettingsValid):
             createZoneHandlers(settings)
@@ -147,15 +131,15 @@ def updateZoneHandlers(settings):
             updateTimestamp()            
         else: # (NO DATA).
             if (not isTimeout()):
-                logger.warn("NO DATA -> USING PREVIOUS SETTINGS (zoneHandlersUpdateTimestamp=%d ; time.time()=%d)" % (zoneHandlersUpdateTimestamp, time.time()))
+                
                 # TODO: Send lastValidSettings only once or even 0.
                 if (lastTimeoutSettings != lastValidSettings):
+                    logger.warn("NO DATA -> USING PREVIOUS SETTINGS (zoneHandlersUpdateTimestamp=%d ; time.time()=%d)" % (zoneHandlersUpdateTimestamp, time.time()))
                     updateZones(lastValidSettings)
                 lastTimeoutSettings = lastValidSettings
             else: # 
-                # TODO: Send empty data only once.
-                logger.warn("NO DATA TIMEOUT -> SENDING EMPTY SETTINGS (zoneHandlersUpdateTimestamp=%d ; time.time()=%d; time.time() - zoneHandlersUpdateTimestamp=%d)" % (zoneHandlersUpdateTimestamp, time.time(), time.time() - zoneHandlersUpdateTimestamp))
                 if (lastTimeoutSettings != []):
+                    logger.warn("NO DATA TIMEOUT -> SENDING EMPTY SETTINGS (zoneHandlersUpdateTimestamp=%d ; time.time()=%d; time.time() - zoneHandlersUpdateTimestamp=%d)" % (zoneHandlersUpdateTimestamp, time.time(), time.time() - zoneHandlersUpdateTimestamp))
                     updateZonesWithEmpty()
                     lastTimeoutSettings = []
     
@@ -171,47 +155,36 @@ def settingsChangedOrEmpty():
     newSettings = hs.getSettings()
     if (newSettings != settings):
         if (settings == None):
-            logger.info("New settings received")
+            logger.info("First settings received")
         else:
             logger.info("Settings change detected.")
     status = updateZoneHandlers(newSettings)
-    #putStatusAndSettings(status, settings)
     putStatusAndSettings()
     
     settings = newSettings
     
-#def putStatusAndSettings(status, settings):
 def putStatusAndSettings():
     global settings
     global status
     
     logger.debug("putting statuses: " + str(status))    
-    #updateZoneHandlers(settings)
     hs.putStatusREST(status)
     hs.putSettingsREST(settings)    
     
-# TODO: Create updater.
-
 if __name__ == '__main__':
     logger.info("running")
     hs = ServerSubscriber(device=0)
-#     hs.addSettingsChangeObserver(lambda: settingsChangedOrEmpty())
-#     hs.addEmptySettingsObserver(lambda: settingsChangedOrEmpty())
     
     # HERE:
-    newSettings = hs.getSettingsREST() #hs.getSettingsAndNotifyREST()
+    newSettings = hs.getSettingsREST()
     status = updateZoneHandlers(newSettings)  
     settings = newSettings
     putStatusAndSettings()
     
     while (True):
         time.sleep(1)
-        # HERE: Partial
-        #hs.getSettingsAndNotifyREST() # TODO: This should be getSettingsREST.
         newSettings = hs.getSettingsREST()
 
-        #if (newSettings != settings or newSettings == {}):
-        
         if (newSettings != settings):
             logger.info("New settings receied: %s vs %s" % (newSettings, settings)) # FIXME; Here is a problme.
         if (newSettings == {} and settings != {}):
