@@ -145,23 +145,23 @@ def updateZoneHandlers(settings):
     
     return getGpioPinValues()
     
-def settingsChangedOrEmpty():
-    global hs
-    global settings
-    global status
-    
-    #print "Settings change detected"
-
-    newSettings = hs.getSettings()
-    if (newSettings != settings):
-        if (settings == None):
-            logger.info("First settings received")
-        else:
-            logger.info("Settings change detected.")
-    status = updateZoneHandlers(newSettings)
-    putStatusAndSettings()
-    
-    settings = newSettings
+# def settingsChangedOrEmpty():
+#     global hs
+#     global settings
+#     global status
+#     
+#     #print "Settings change detected"
+# 
+#     newSettings = hs.getSettings()
+#     if (newSettings != settings):
+#         if (settings == None):
+#             logger.info("First settings received")
+#         else:
+#             logger.info("Settings change detected.")
+#     status = updateZoneHandlers(newSettings)
+#     putStatusAndSettings()
+#     
+#     settings = newSettings
     
 def putStatusAndSettings():
     global settings
