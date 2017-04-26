@@ -7,32 +7,39 @@ import java.time.ZoneId;
 
 public class Stretch<T> {
 	//double averageDifference;
-	private Duration maxDifference;
+	private long maxDelay = -1;
+	private long minDelay = -1;
+	private long count;
+	
+	private T value;
+	private Instant start;
+	private Instant end;
+	
 	/**
 	 * @return the maxDifference
 	 */
-	public Duration getMaxDifference() {
-		if (samples < 2) {
+	public long getMaxDelay() {
+		if (count < 2) {
 			throw new UnsupportedOperationException("At least 2 samples needed to get maxDifference");
 		}
-		return maxDifference;
+		return maxDelay;
 	}
 
 	/**
 	 * @return the minDifference
 	 */
-	public Duration getMinDifference() {
-		if (samples < 2) {
+	public long getMinDelay() {
+		if (count < 2) {
 			throw new UnsupportedOperationException("At least 2 samples needed to get minDifference");
 		}
-		return minDifference;
+		return minDelay;
 	}
 
 	/**
 	 * @return the samples
 	 */
-	public long getSamples() {
-		return samples;
+	public long getCount() {
+		return count;
 	}
 
 	/**
@@ -45,79 +52,66 @@ public class Stretch<T> {
 	/**
 	 * @return the periodStarted
 	 */
-	public Instant getPeriodStarted() {
+	public Instant getStart() {
 		return start;
 	}
 
 	/**
 	 * @return the periodEnded
 	 */
-	public Instant getPeriodEnded() {
+	public Instant getEnd() {
 		return end;
 	}
 
-
-	private Duration minDifference;
-	private long samples;
-	
-	private T value;
-	private Instant start;
-	private Instant end;
-	
 	public Stretch(T value, Instant instant) {
 		start = instant;
 		end = instant;
-		samples = 1;
+		count = 1;
 		this.value = value;
 	}
 	
 	public void addSample(Instant instant) {
-		Duration timeDiff = null;
+		long timeDiff;
 		
 		if (instant.isBefore(end)) {
 			throw new IllegalArgumentException("instant < periodEnded; only consecutive order is permitted.");
 		} 
 		
-		timeDiff = Duration.between(end,  instant);
+		timeDiff = Duration.between(end,  instant).toMillis();
 		end = instant;
-		if (maxDifference == null || timeDiff.compareTo(maxDifference) > 0) {
-			maxDifference = timeDiff;
+		if (maxDelay == -1 || timeDiff > maxDelay) {
+			maxDelay = timeDiff;
 		}
-		if (minDifference == null || timeDiff.compareTo(minDifference) < 0) {
-			minDifference = timeDiff;
+		if (minDelay == -1 || timeDiff < minDelay) {
+			minDelay = timeDiff;
 		}
-		samples += 1;
+		count += 1;
 	}
 	
-	public Duration averagePeriod() {
-		if (samples < 2) {
+	public long averageDelay() {
+		if (count < 2) {
 			throw new UnsupportedOperationException("At least 2 samples needed to get averagedDifference");
 		}
-		return Duration.between(start, end).dividedBy(samples - 1);
+		return Duration.between(start, end).dividedBy(count - 1).toMillis();
 	}
 
 	
 	@Override
 	public String toString() {
-		if (samples < 2)
+		if (count < 2)
 			return String.format("SamplingStretch: value=%d [t=<%s - %s> %d samples]", 
-					value, start, end, samples);
+					value, start, end, count);
 					
 		DateTimeFormatter formatter;
-			//formatter = DateTimeFormatter
-				//.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT)
-				//.withZone(ZoneId.systemDefault());
-		//formatter = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneId.systemDefault());
-		//formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME.withZone(ZoneId.systemDefault());
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 		
 		return String.format("SamplingStretch: value=%d [t=<%s-%s> %d samples; avg=%d ms, min=%d ms, max=%d ms]", 
 				value, 
 				formatter.format(start),
 				formatter.format(end), 
-				samples, 
-				averagePeriod().toMillis(), 
-				minDifference.toMillis(),
-				maxDifference.toMillis());
+				count, 
+				averageDelay(), 
+				minDelay,
+				maxDelay);
 	}
 }

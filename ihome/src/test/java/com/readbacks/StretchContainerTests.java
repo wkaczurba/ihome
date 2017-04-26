@@ -9,7 +9,7 @@ import org.junit.Test;
 public class StretchContainerTests {
 
 	@Test
-	public void stretchContainerTests() {
+	public void stretchContainerTest1() {
 		StretchContainer<Integer> sc = new StretchContainer<>();
 		
 		Instant time = Instant.now();
@@ -21,13 +21,31 @@ public class StretchContainerTests {
 		
 		Assert.assertEquals(2, sc.getList().size());
 		Assert.assertEquals(2, sc.getList().size());
-		Assert.assertEquals(1, sc.getList().get(0).getSamples());
-		Assert.assertEquals(1, sc.getList().get(1).getSamples()); 
+		Assert.assertEquals(1, sc.getList().get(0).getCount());
+		Assert.assertEquals(1, sc.getList().get(1).getCount()); 
 		
-		// TODO: Tests for:
-		// 1. addition to the same Stretch
-		// 2. different stretch on timeout
-		// 3. change of timeout
+		System.out.println(sc);
 	}
+	
+	@Test
+	public void stretchContainerAddingToTheSameStretchTest() {
+		Assert.fail("Unimplemented");
+	}
+	
+	@Test
+	public void stretchContainerAddingToDifferentStretchOnTimeout() {
+		Assert.fail("Unimplemented");
+	}
+	
+	@Test
+	public void stretchContainerChangeTimeout() {
+		Assert.fail("Unimplemented");
+	}
+
+
+	// TODO: Tests for:
+	// 1. addition to the same Stretch
+	// 2. different stretch on timeout
+	// 3. change of timeout
 	
 }

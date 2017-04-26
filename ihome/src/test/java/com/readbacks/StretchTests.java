@@ -17,38 +17,38 @@ public class StretchTests {
 		
 		Stretch<Double> s = new Stretch<>(3.0, time);
 		try {
-			s.getMaxDifference();
+			s.getMaxDelay();
 			throw new RuntimeException("It should have failed.");
 		} catch (UnsupportedOperationException e) { }
 
 		try {
-			s.getMinDifference();
+			s.getMinDelay();
 			throw new RuntimeException("It should have failed.");
 		} catch (UnsupportedOperationException e) { }
 
 		try {
-			s.averagePeriod();
+			s.averageDelay();
 			throw new RuntimeException("It should have failed.");
 		} catch (UnsupportedOperationException e) { }
 		
-		Assert.assertEquals(1L, s.getSamples());
+		Assert.assertEquals(1L, s.getCount());
 		Assert.assertEquals((Double) 3.0, s.getValue());
 		
 		
 		List<Long> delays = new ArrayList<>();
 		for (int i=0; i<100; i++) {
-			long seconds = (long) (Math.random() * 100);
-			delays.add(seconds);
+			long miliseconds = (long) (Math.random() * 100) * 1000;
+			delays.add(miliseconds);
 			
-			time = time.plus(Duration.ofSeconds(seconds));			
+			time = time.plus(Duration.ofMillis(miliseconds));			
 			s.addSample(time);
 		}
 		
-		Assert.assertEquals(s.getMaxDifference(), Duration.ofSeconds((long) delays.stream().mapToDouble(x -> x).max().getAsDouble()));
-		Assert.assertEquals(s.getMinDifference(), Duration.ofSeconds((long) delays.stream().mapToDouble(x -> x).min().getAsDouble()));
-		Assert.assertEquals(s.averagePeriod(), Duration.ofMillis((long) (delays.stream().mapToDouble(x -> x).average().getAsDouble()*1000)));
-		Assert.assertEquals(s.getPeriodEnded(), time);
-		Assert.assertEquals(s.getPeriodStarted(), time.minus(Duration.ofMillis((long) (delays.stream().mapToDouble(x -> x).sum() * 1000))));
+		Assert.assertEquals(s.getMaxDelay(), delays.stream().mapToLong(x -> x).max().getAsLong());
+		Assert.assertEquals(s.getMinDelay(), delays.stream().mapToLong(x -> x).min().getAsLong());
+		Assert.assertEquals(s.averageDelay(), (long) (delays.stream().mapToLong(x -> x).average().getAsDouble() ));
+		Assert.assertEquals(s.getEnd(), time);
+		Assert.assertEquals(s.getStart(), time.minus(Duration.ofMillis((long) (delays.stream().mapToDouble(x -> x).sum()))));
 	}
 	
 	

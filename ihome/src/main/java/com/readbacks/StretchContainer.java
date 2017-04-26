@@ -16,7 +16,7 @@ public class StretchContainer<T> {
 	public void addSample(T value, Instant instant) {
 		if (currentStretch == null ||
 			!currentStretch.getValue().equals(value) ||
-			currentStretch.getPeriodEnded().plus(maxDifference).isBefore(instant)) {
+			currentStretch.getEnd().plus(maxDifference).isBefore(instant)) {
 				
 			currentStretch = new Stretch<T>(value, instant);
 			list.add(currentStretch);
