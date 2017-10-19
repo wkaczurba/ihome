@@ -11,6 +11,9 @@ Raspberry Pi (in house):
  - RaspberryPi accessees server and updates all swithces accordingly to the server's settings
  - Tests: Python's unittest
 
+Android App:
+ - not developed yet.
+
 TOOD:
  - Change from REST to messaging for Raspberry so it does not use 
  - Add Spring Cache
